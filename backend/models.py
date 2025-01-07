@@ -1,5 +1,7 @@
 from flask_login import UserMixin
 from backend import db
+from sqlalchemy.dialects.postgresql import JSON
+from datetime import datetime
 
 
 class User(db.Model, UserMixin):
@@ -105,3 +107,18 @@ class Address(db.Model):
 
     def __repr__(self):
         return f'<Address {self.address_line}, {self.city}>'
+
+
+#### audio ---------------
+
+class AudioRecord(db.Model):
+    __tablename__ = 'audio_record'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Relación con el usuario que sube el audio
+    audio_path = db.Column(db.String(255), nullable=False)  # Ruta del archivo de audio
+    image_path = db.Column(db.String(255), nullable=True)  # Ruta de la imagen opcional
+    audio_metadata = db.Column(JSON, nullable=True)  # Almacena los metadatos en formato JSON
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Fecha de creación
+
+    user = db.relationship('User', backref='audio_records')  # Relación para acceder al usuario

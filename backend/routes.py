@@ -1,9 +1,11 @@
 # backend/routes.py
 
+import os
+import json
 from flask import Blueprint, request, jsonify, render_template,redirect, url_for, flash, get_flashed_messages, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash,check_password_hash
-from backend import app, db
+from backend import app, db, AudioRecord
 from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage
 from datetime import datetime
 from backend.forms import SignupForm, SigninForm
@@ -100,6 +102,64 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted'})
+
+# ----------------------
+# AUDIO ROUTES
+# ----------------------
+
+@bp.route('/upload-audio', methods=['POST'])
+@login_required
+def upload_audio():
+    audio_file = request.files.get('audio')
+    image_file = request.files.get('image')
+
+    # Verificar que se suba un archivo de audio
+    if not audio_file:
+        return jsonify({'message': 'Audio file is required'}), 400
+
+    # Guardar metadatos del formulario
+    audio_metadata = {
+        "date": request.form.get("date"),
+        "time": request.form.get("time"),
+        "season": request.form.get("season"),
+        "duration": request.form.get("duration"),
+        "location": request.form.get("location"),
+        "conditions": request.form.get("conditions"),
+        "temperature": request.form.get("temperature"),
+        "wind": request.form.get("wind"),
+        "recordist": request.form.get("recordist"),
+        "notes": request.form.get("notes"),
+    }
+
+    # Guardar archivos en directorios locales (puedes reemplazar con almacenamiento en la nube)
+    uploads_dir = os.path.join(os.getcwd(), 'uploads')
+    audio_dir = os.path.join(uploads_dir, 'audio')
+    image_dir = os.path.join(uploads_dir, 'images')
+    os.makedirs(audio_dir, exist_ok=True)
+    os.makedirs(image_dir, exist_ok=True)
+
+    # Guardar el archivo de audio
+    audio_path = os.path.join(audio_dir, audio_file.filename)
+    audio_file.save(audio_path)
+
+    # Guardar el archivo de imagen si existe
+    image_path = None
+    if image_file:
+        image_path = os.path.join(image_dir, image_file.filename)
+        image_file.save(image_path)
+
+    # Guardar datos en la base de datos
+    audio_record = AudioRecord(
+        user_id=current_user.id,
+        audio_path=audio_path,
+        image_path=image_path,
+        audio_metadata=audio_metadata  # Cambiado de "metadata" a "audio_metadata"
+    )
+    db.session.add(audio_record)
+    db.session.commit()
+
+    return jsonify({'message': 'Audio uploaded successfully!'}), 201
+
 
 
 # ----------------------

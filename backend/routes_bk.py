@@ -101,7 +101,7 @@ def delete_user(user_id):
 # ----------------------
 # AUDIO
 # ----------------------
-@bp.route('/api/upload-audio', methods=['POST'])
+@bp.route('/upload-audio', methods=['POST'])
 @login_required
 def upload_audio():
     audio_file = request.files.get('audio')

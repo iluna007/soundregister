@@ -9,7 +9,7 @@ const Header = () => {
 		<Navbar bg='warning' expand='lg'>
 			<Container>
 				<Navbar.Brand as={Link} to='/'>
-					MyApp
+					Sound Register
 				</Navbar.Brand>
 				<Navbar.Toggle aria-controls='basic-navbar-nav' />
 				<Navbar.Collapse id='basic-navbar-nav'>
@@ -22,6 +22,15 @@ const Header = () => {
 						</Nav.Link>
 						<Nav.Link as={Link} to='/reacttest'>
 							Test
+						</Nav.Link>
+						<Nav.Link as={Link} to='/auth'>
+							SingIn/UP
+						</Nav.Link>
+						<Nav.Link as={Link} to='/audio-upload'>
+							Upload Audio
+						</Nav.Link>
+						<Nav.Link as={Link} to='/records'>
+							Records
 						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>

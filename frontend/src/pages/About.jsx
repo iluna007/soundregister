@@ -1,14 +1,20 @@
-import React from 'react'
-import "./about.css"
+import React, { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap"; // Added Row and Col
 
-import Button from "react-bootstrap/Button";
-import AudioCard from '../components/AudioCard';
-export const About = () => {
-  return (
-		<div>
-			<AudioCard></AudioCard>
-		</div>
+const AuthPage = () => {
+	
+
+	return (
+		<Container className='mt-5'>
+			<Row>
+				<Col></Col>
+				<Col>
+					<h2 className='text-center'> About ! </h2>
+				</Col>
+				<Col></Col>
+			</Row>
+		</Container>
 	);
-}
+};
 
-export default About;
+export default AuthPage;

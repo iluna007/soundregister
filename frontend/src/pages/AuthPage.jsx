@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Alert } from "react-bootstrap";
+import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap"; // Added Row and Col
 
 const AuthPage = () => {
 	const [isSignUp, setIsSignUp] = useState(false);
@@ -66,69 +66,75 @@ const AuthPage = () => {
 
 	return (
 		<Container className='mt-5'>
-			<h2 className='text-center'>{isSignUp ? "Sign Up" : "Sign In"}</h2>
-			{message && <Alert variant='success'>{message}</Alert>}
-			{error && <Alert variant='danger'>{error}</Alert>}
-			<Form onSubmit={handleSubmit}>
-				{isSignUp && (
-					<Form.Group className='mb-3'>
-						<Form.Label>Username</Form.Label>
-						<Form.Control
-							type='text'
-							name='username'
-							value={formData.username}
-							onChange={handleChange}
-							placeholder='Enter your username'
-							required
-						/>
-					</Form.Group>
-				)}
-				<Form.Group className='mb-3'>
-					<Form.Label>Email</Form.Label>
-					<Form.Control
-						type='email'
-						name='email'
-						value={formData.email}
-						onChange={handleChange}
-						placeholder='Enter your email'
-						required
-					/>
-				</Form.Group>
-				<Form.Group className='mb-3'>
-					<Form.Label>Password</Form.Label>
-					<Form.Control
-						type='password'
-						name='password'
-						value={formData.password}
-						onChange={handleChange}
-						placeholder='Enter your password'
-						required
-					/>
-				</Form.Group>
-				{isSignUp && (
-					<Form.Group className='mb-3'>
-						<Form.Label>Confirm Password</Form.Label>
-						<Form.Control
-							type='password'
-							name='confirmPassword'
-							value={formData.confirmPassword}
-							onChange={handleChange}
-							placeholder='Confirm your password'
-							required
-						/>
-					</Form.Group>
-				)}
-				<Button variant='primary' type='submit'>
-					{isSignUp ? "Sign Up" : "Sign In"}
-				</Button>
-			</Form>
-			<div className='text-center mt-3'>
-				<Button variant='link' onClick={handleToggle}>
-					{isSignUp
-						? "Already have an account? Sign In"
-						: "Don't have an account? Sign Up"}
-				</Button>
-			</div>
+			<Row>
+				<Col></Col>
+				<Col>
+					<h2 className='text-center'>{isSignUp ? "Sign Up" : "Sign In"}</h2>
+					{message && <Alert variant='success'>{message}</Alert>}
+					{error && <Alert variant='danger'>{error}</Alert>}
+					<Form onSubmit={handleSubmit}>
+						{isSignUp && (
+							<Form.Group className='mb-3'>
+								<Form.Label>Username</Form.Label>
+								<Form.Control
+									type='text'
+									name='username'
+									value={formData.username}
+									onChange={handleChange}
+									placeholder='Enter your username'
+									required
+								/>
+							</Form.Group>
+						)}
+						<Form.Group className='mb-3'>
+							<Form.Label>Email</Form.Label>
+							<Form.Control
+								type='email'
+								name='email'
+								value={formData.email}
+								onChange={handleChange}
+								placeholder='Enter your email'
+								required
+							/>
+						</Form.Group>
+						<Form.Group className='mb-3'>
+							<Form.Label>Password</Form.Label>
+							<Form.Control
+								type='password'
+								name='password'
+								value={formData.password}
+								onChange={handleChange}
+								placeholder='Enter your password'
+								required
+							/>
+						</Form.Group>
+						{isSignUp && (
+							<Form.Group className='mb-3'>
+								<Form.Label>Confirm Password</Form.Label>
+								<Form.Control
+									type='password'
+									name='confirmPassword'
+									value={formData.confirmPassword}
+									onChange={handleChange}
+									placeholder='Confirm your password'
+									required
+								/>
+							</Form.Group>
+						)}
+						<Button variant='primary' type='submit'>
+							{isSignUp ? "Sign Up" : "Sign In"}
+						</Button>
+					</Form>
+					<div className='text-center mt-3'>
+						<Button variant='link' onClick={handleToggle}>
+							{isSignUp
+								? "Already have an account? Sign In"
+								: "Don't have an account? Sign Up"}
+						</Button>
+					</div>
+				</Col>
+				<Col></Col>
+			</Row>
 		</Container>
 	);
 };

@@ -1,62 +1,63 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import audioData from "../data/audioData";
-import "./AudioRecordDetail.css";
+import audioData from "../store/datatest";
 
 const AudioRecordDetail = () => {
 	const { id } = useParams();
-	const record = audioData.find((item) => item.id === parseInt(id));
+	const audio = audioData.find((item) => item.id === parseInt(id));
 
-	if (!record) return <div>Record not found!</div>;
+	if (!audio) {
+		return <div>Audio record not found!</div>;
+	}
 
 	return (
-		<div className='container example'>
-			<div className='row mt-4'>
-				<div className='col-12 mb-4'>
+		<div className='container mt-5'>
+			<h1 className='mb-4'>{audio.notes}</h1>
+			<div className='row'>
+				<div className='col-md-6'>
 					<img
-						src={record.imageUrl}
-						alt={record.notes}
+						src={audio.imageUrl}
+						alt={audio.notes}
 						className='img-fluid rounded'
 					/>
 				</div>
-				<div className='col-12'>
-					<audio controls className='audio-player'>
-						<source src={record.audioUrl} type='audio/mpeg' />
+				<div className='col-md-6'>
+					<ul className='list-group'>
+						<li className='list-group-item'>
+							<strong>Date:</strong> {audio.date}
+						</li>
+						<li className='list-group-item'>
+							<strong>Time:</strong> {audio.time}
+						</li>
+						<li className='list-group-item'>
+							<strong>Location:</strong> {audio.location}
+						</li>
+						<li className='list-group-item'>
+							<strong>Conditions:</strong> {audio.conditions}
+						</li>
+						<li className='list-group-item'>
+							<strong>Temperature:</strong> {audio.temperature}
+						</li>
+						<li className='list-group-item'>
+							<strong>Wind:</strong> {audio.wind}
+						</li>
+						<li className='list-group-item'>
+							<strong>Recordist:</strong> {audio.recordist}
+						</li>
+						<li className='list-group-item'>
+							<strong>Tags:</strong>{" "}
+							{Array.isArray(audio.tags)
+								? audio.tags.join(", ")
+								: "No tags available"}
+						</li>
+					</ul>
+					<audio controls className='mt-3 w-100'>
+						<source src={audio.audioUrl} type='audio/mpeg' />
 						Your browser does not support the audio element.
 					</audio>
 				</div>
-				<div className='col-12 mt-4'>
-					<h2>{record.notes}</h2>
-					<p>
-						<strong>Date:</strong> {record.date}
-					</p>
-					<p>
-						<strong>Time:</strong> {record.time}
-					</p>
-					<p>
-						<strong>Season:</strong> {record.season}
-					</p>
-					<p>
-						<strong>Location:</strong> {record.location}
-					</p>
-					<p>
-						<strong>Conditions:</strong> {record.conditions}
-					</p>
-					<p>
-						<strong>Temperature:</strong> {record.temperature}
-					</p>
-					<p>
-						<strong>Wind:</strong> {record.wind}
-					</p>
-					<p>
-						<strong>Recordist:</strong> {record.recordist}
-					</p>
-					<p>
-						<strong>Tags:</strong> {record.tags}
-					</p>
-				</div>
 			</div>
-			<Link to='/records' className='btn btn-outline-secondary mt-3'>
+			<Link to='/records' className='btn btn-secondary mt-4'>
 				Back to Records
 			</Link>
 		</div>

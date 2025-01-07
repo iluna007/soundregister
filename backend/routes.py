@@ -11,8 +11,11 @@ import cloudinary.uploader
 
 bp = Blueprint('api', __name__)
 
+# Blueprint para las vistas principales de flask
+bp_main = Blueprint('main', __name__)
 
-@bp.route('/')
+
+@bp_main.route('/')
 def home():
     current_time = datetime.utcnow()
     products = Product.query.all()
@@ -97,47 +100,6 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted'})
-
-# ----------------------
-# AUDIO
-# ----------------------
-@bp.route('/api/upload-audio', methods=['POST'])
-@login_required
-def upload_audio():
-    audio_file = request.files.get('audio')
-    image_file = request.files.get('image')
-
-    # Verificar que se suba un archivo de audio
-    if not audio_file:
-        return jsonify({'message': 'Audio file is required'}), 400
-
-    # Guardar metadatos del formulario
-    metadata = {
-        "date": request.form.get("date"),
-        "time": request.form.get("time"),
-        "season": request.form.get("season"),
-        "duration": request.form.get("duration"),
-        "location": request.form.get("location"),
-        "conditions": request.form.get("conditions"),
-        "temperature": request.form.get("temperature"),
-        "wind": request.form.get("wind"),
-        "recordist": request.form.get("recordist"),
-        "notes": request.form.get("notes"),
-    }
-
-    # Aquí puedes guardar los archivos e información en la base de datos
-    # Por ejemplo, podrías subir los archivos a Cloudinary, AWS S3 o guardarlos localmente.
-    
-    # Simulando guardar archivo y datos en la base de datos
-    db.session.add(AudioRecord(
-        user_id=current_user.id,
-        audio_path="path/to/audio",  # Reemplazar con la ruta real
-        image_path="path/to/image" if image_file else None,
-        metadata=json.dumps(metadata)
-    ))
-    db.session.commit()
-
-    return jsonify({'message': 'Audio uploaded successfully!'}), 201
 
 
 # ----------------------

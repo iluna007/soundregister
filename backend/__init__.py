@@ -28,6 +28,9 @@ from flask_cors import CORS
 # Cargar el archivo .env
 load_dotenv()
 
+# TEMPORAL: Imprime DATABASE_URL para verificar que se está cargando
+print("DATABASE_URL:", os.getenv('DATABASE_URL'))
+
 # Inicialización de la aplicación y configuración
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -57,8 +60,13 @@ def load_user(user_id):
 
 
 # Registrar blueprints
-from backend.routes import bp as api_bp
-app.register_blueprint(api_bp, url_prefix='/api')
+#from backend.routes import bp as api_bp
+from backend.routes import bp, bp_main
+
+app.register_blueprint(bp, url_prefix='/api')
+
+# Registrar el blueprint para vistas principales de flask
+app.register_blueprint(bp_main)
 
 # Importar las rutas y otros módulos después de inicializar app y db
 from backend import routes,app, db, models

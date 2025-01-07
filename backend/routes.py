@@ -5,8 +5,8 @@ import json
 from flask import Blueprint, request, jsonify, render_template,redirect, url_for, flash, get_flashed_messages, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash,check_password_hash
-from backend import app, db, AudioRecord
-from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage
+from backend import app, db
+from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage,AudioRecord
 from datetime import datetime
 from backend.forms import SignupForm, SigninForm
 import cloudinary.uploader

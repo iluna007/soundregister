@@ -66,3 +66,22 @@ Este repositorio ilustra la integración de **React** con **Vite**, **PostgreSQL
 - **Bootstrap**: [https://getbootstrap.com/docs/5.3/](https://getbootstrap.com/docs/5.3/)  
 - **Docker Compose**: [https://docs.docker.com/compose/](https://docs.docker.com/compose/)  
 - **Postgres**: [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)
+
+
+### Test API
+
+curl -X POST http://localhost:5000/api/signin \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "user@example.com",
+  "password": "password123"
+}'
+
+
+curl -X POST http://localhost:5000/api/signin \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "na@na",
+  "password": "na"
+}'
+

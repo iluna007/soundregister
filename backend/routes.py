@@ -108,7 +108,7 @@ def delete_user(user_id):
 # ----------------------
 
 @bp.route('/upload-audio', methods=['POST'])
-@login_required
+#@login_required
 def upload_audio():
     audio_file = request.files.get('audio')
     image_file = request.files.get('image')
@@ -518,21 +518,50 @@ def signup():
         return redirect(url_for('signin'))  # Redirigir al usuario a la página de inicio de sesión
     return render_template('signup.html', form=form)
     
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
-    form = SigninForm()
-    if form.validate_on_submit():
-        # Buscar usuario por email
-        user = User.query.filter_by(email=form.email.data).first()
+# @app.route('/signin', methods=['GET', 'POST'])
+# def signin():
+#     form = SigninForm()
+#     if form.validate_on_submit():
+#         # Buscar usuario por email
+#         user = User.query.filter_by(email=form.email.data).first()
         
-        # Verificar si el usuario existe y la contraseña es correcta
-        if user and check_password_hash(user.password_hash, form.password.data):
-            login_user(user, remember=form.remember_me.data)  # Inicia la sesión del usuario
-            flash('Login successful!', 'success')
-            return redirect(url_for('dashboard'))  # Redirige al dashboard o página principal
-        else:
-            flash('Invalid email or password.', 'danger')
-    return render_template('signin.html', form=form)
+#         # Verificar si el usuario existe y la contraseña es correcta
+#         if user and check_password_hash(user.password_hash, form.password.data):
+#             login_user(user, remember=form.remember_me.data)  # Inicia la sesión del usuario
+#             flash('Login successful!', 'success')
+#             return redirect(url_for('dashboard'))  # Redirige al dashboard o página principal
+#         else:
+#             flash('Invalid email or password.', 'danger')
+#     return render_template('signin.html', form=form)
+
+@bp.route('/signin', methods=['POST'])
+def signin():
+    data = request.get_json()
+
+    # Validar datos de entrada
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({'message': 'Email and password are required'}), 400
+
+    # Buscar al usuario en la base de datos
+    user = User.query.filter_by(email=data['email']).first()
+
+    # Verificar contraseña
+    if not user or not check_password_hash(user.password_hash, data['password']):
+        return jsonify({'message': 'Invalid email or password'}), 401
+
+    # Iniciar sesión
+    login_user(user)
+
+    return jsonify({
+        'message': 'Login successful',
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        }
+    }), 200
+
+
     
 @app.route('/signout')
 @login_required

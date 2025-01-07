@@ -9,12 +9,126 @@ from backend import app, db
 from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage,AudioRecord
 from datetime import datetime
 from backend.forms import SignupForm, SigninForm
+import boto3
 import cloudinary.uploader
 
 bp = Blueprint('api', __name__)
 
 # Blueprint para las vistas principales de flask
 bp_main = Blueprint('main', __name__)
+
+# Configurar el cliente S3 usando las variables de entorno
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+    region_name=os.getenv('AWS_REGION')
+)
+
+# Nombre del bucket de S3
+bucket_name = 'bucket-for-aws-file-manager-web-apps'  # Cambia este valor por el nombre real de tu bucket
+
+# @app.route('/')
+# def index():
+#     """Listar archivos en el bucket de S3"""
+#     response = s3.list_objects_v2(Bucket=bucket_name)
+#     files = []
+    
+#     if 'Contents' in response:
+#         for content in response['Contents']:
+#             files.append(content['Key'])
+    
+#     return render_template('index.html', files=files)
+
+
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     """Subir archivo a S3"""
+#     if 'file' not in request.files:
+#         flash('No se seleccionó ningún archivo')
+#         return redirect(url_for('index'))
+
+#     file = request.files['file']
+
+#     if file.filename == '':
+#         flash('No se seleccionó ningún archivo')
+#         return redirect(url_for('index'))
+
+#     if file:
+#         # Obtener la extensión del archivo
+#         file_extension = file.filename.split('.')[-1].lower()
+
+#         # Establecer el Content-Type correcto si es un PDF
+#         if file_extension == 'pdf':
+#             content_type = 'application/pdf'
+#         else:
+#             content_type = file.content_type  # Usar el tipo de contenido detectado por Flask
+
+#         # Subir el archivo a S3 con el Content-Type correcto
+#         s3.upload_fileobj(
+#             file,
+#             bucket_name,
+#             file.filename,
+#             ExtraArgs={'ContentType': content_type}
+#         )
+
+#         flash(f'Archivo {file.filename} subido exitosamente')
+#         return redirect(url_for('index'))
+
+
+
+# @app.route('/download/<filename>')
+# def download_file(filename):
+#     """Generar una URL temporal para descargar/visualizar el archivo desde S3"""
+#     try:
+#         # Generar una URL firmada temporalmente para descargar el archivo
+#         file_url = s3.generate_presigned_url(
+#             'get_object',
+#             Params={'Bucket': bucket_name, 'Key': filename},
+#             ExpiresIn=3600  # La URL será válida por 1 hora
+#         )
+#         return redirect(file_url)
+#     except Exception as e:
+#         flash(f'Error al generar enlace para el archivo: {e}')
+#         return redirect(url_for('index'))
+
+
+# @app.route('/delete/<filename>', methods=['POST'])
+# def delete_file(filename):
+#     """Eliminar archivo del bucket de S3"""
+#     try:
+#         # Eliminar el archivo del bucket de S3
+#         s3.delete_object(Bucket=bucket_name, Key=filename)
+#         flash(f'Archivo {filename} eliminado exitosamente')
+#     except Exception as e:
+#         flash(f'Error al eliminar el archivo: {e}')
+    
+#     return redirect(url_for('index'))
+
+# @app.route('/view/<filename>')
+# def view_file(filename):
+#     """Generar una URL temporal para ver o escuchar el archivo online"""
+#     try:
+#         file_url = s3.generate_presigned_url(
+#             'get_object',
+#             Params={'Bucket': bucket_name, 'Key': filename},
+#             ExpiresIn=3600  # La URL será válida por 1 hora
+#         )
+#         file_extension = filename.split('.')[-1].lower()
+
+#         # Mostrar diferentes plantillas según el tipo de archivo
+#         if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+#             return render_template('view_image.html', file_url=file_url, filename=filename)
+#         elif file_extension == 'pdf':
+#             return render_template('view_pdf.html', file_url=file_url, filename=filename)
+#         elif file_extension in ['mp3', 'wav', 'ogg']:
+#             return render_template('view_audio.html', file_url=file_url, filename=filename)
+#         else:
+#             flash('Formato de archivo no compatible para vista previa')
+#             return redirect(url_for('index'))
+#     except Exception as e:
+#         flash(f'Error al generar vista del archivo: {e}')
+#         return redirect(url_for('index'))
 
 
 @bp_main.route('/')

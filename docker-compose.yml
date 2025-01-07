@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: mi_usuario
+      POSTGRES_PASSWORD: mi_contraseña
+      POSTGRES_DB: mi_base_datos
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile_backend
+    volumes:
+      - .:/backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    environment:
+      FLASK_APP: run
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://mi_usuario:mi_contraseña@postgres:5432/mi_base_datos
+      DB_HOST: postgres
+      DB_PORT: 5432
+    command: flask run --host=0.0.0.0 --port=5000
+    networks:
+      - backend
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile_frontend
+    container_name: react_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - postgres
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Habilita el sondeo para React
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  db-data:

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AudioCard from "../components/AudioCard"; // Importa el componente AudioCard
+import AudioCard from "../components/AudioCard";
 import audioData from "../store/datatest";
 import "./AudioRecords.css";
 
@@ -17,7 +17,6 @@ const AudioRecords = () => {
 
 	return (
 		<div className='container mt-5'>
-			{/* Botones de filtro */}
 			<div className='filter-buttons mb-4 d-flex flex-wrap justify-content-center'>
 				<button
 					className={`btn m-2 ${
@@ -39,25 +38,12 @@ const AudioRecords = () => {
 					</button>
 				))}
 			</div>
-
-			{/* Tarjetas de audio */}
 			<div className='audio-grid'>
 				{filteredAudio.map((audio) => (
 					<AudioCard
 						key={audio.id}
-						id={audio.id} // Pasar id
-						title={`Audio ${audio.id}`} // Generar el título
-						date={audio.date}
-						time={audio.time}
-						season={audio.season}
-						duration={audio.duration}
-						location={audio.location}
-						conditions={audio.conditions}
-						temperature={audio.temperature}
-						wind={audio.wind}
-						recordist={audio.recordist}
-						notes={audio.notes}
-						tags={audio.tags}
+						id={audio.id}
+						title={audio.title}
 						imageUrl={audio.imageUrl}
 						audioUrl={audio.audioUrl}
 					/>

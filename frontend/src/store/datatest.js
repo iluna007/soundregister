@@ -13,7 +13,7 @@ const testData = [
 		recordist: "Philip Samartzis",
 		notes: "Detailed recording of skiers and snowboarders on Wombat Ramble.",
 		tags: ["Birds", "Winter", "Snow"],
-		imageUrl: "https://placehold.co/400",
+		imageUrl: "https://placehold.co/400x600",
 		audioUrl:
 			"https://diviextended.com/wp-content/uploads/2021/10/sound-of-waves-marine-drive-mumbai.mp3",
 	},
@@ -49,7 +49,7 @@ const testData = [
 		recordist: "John Smith",
 		notes: "Morning bird songs recorded in the forest.",
 		tags: ["Birds", "Nature", "Footsteps"],
-		imageUrl: "https://placehold.co/400",
+		imageUrl: "https://placehold.co/100x200",
 		audioUrl:
 			"https://diviextended.com/wp-content/uploads/2021/10/sound-of-waves-marine-drive-mumbai.mp3",
 	},
@@ -103,7 +103,7 @@ const testData = [
 		recordist: "Alice Brown",
 		notes: "Crickets chirping in a quiet meadow.",
 		tags: ["Night", "Snow", "Nature"],
-		imageUrl: "https://placehold.co/400",
+		imageUrl: "https://placehold.co/200x400",
 		audioUrl:
 			"https://diviextended.com/wp-content/uploads/2021/10/sound-of-waves-marine-drive-mumbai.mp3",
 	},
@@ -121,7 +121,7 @@ const testData = [
 		recordist: "Michael Davis",
 		notes: "Children playing in the park.",
 		tags: ["Nature", "Spring", "Kids"],
-		imageUrl: "https://placehold.co/400",
+		imageUrl: "https://placehold.co/400x600",
 		audioUrl:
 			"https://diviextended.com/wp-content/uploads/2021/10/sound-of-waves-marine-drive-mumbai.mp3",
 	},
@@ -175,7 +175,7 @@ const testData = [
 		recordist: "Laura Johnson",
 		notes: "Blizzard sounds with howling wind.",
 		tags: ["Blizzard", "Waves", "Wind"],
-		imageUrl: "https://placehold.co/400",
+		imageUrl: "https://placehold.co/250x500",
 		audioUrl:
 			"https://diviextended.com/wp-content/uploads/2021/10/sound-of-waves-marine-drive-mumbai.mp3",
 	},

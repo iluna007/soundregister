@@ -1,0 +1,36 @@
+.audio-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.audio-card .card-img {
+  width: 100%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.audio-card .card-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.audio-card .card-audio {
+  margin-top: 10px;
+  align-self: center;
+  width: 90%;
+}
+
+.audio-card .btn-primary {
+  margin-top: 10px;
+  align-self: center;
+}

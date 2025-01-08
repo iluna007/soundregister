@@ -1,63 +1,14 @@
-.audio-grid {
-  display: grid;
-  gap: 20px;
-  justify-content: center;
+.masonry-grid {
+	display: flex;
+	margin-left: -15px; /* Ajusta el espaciado horizontal */
+	width: auto;
 }
 
-@media (min-width: 1200px) {
-  .audio-grid {
-    grid-template-columns: repeat(4, 1fr); /* 4 columnas en pantallas grandes */
-  }
+.masonry-grid-column {
+	padding-left: 15px; /* Espaciado entre columnas */
+	background-clip: padding-box;
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
-  .audio-grid {
-    grid-template-columns: repeat(3, 1fr); /* 3 columnas en pantallas medianas */
-  }
-}
-
-@media (max-width: 767px) {
-  .audio-grid {
-    grid-template-columns: repeat(1, 1fr); /* 1 columna en pantallas pequeñas */
-  }
-}
-
-.audio-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  overflow: hidden;
-  display: inline-block; /* Cambiar a inline-block para tamaños dinámicos */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.audio-card img {
-  width: 100%;
-  height: auto; /* Permite que la imagen conserve sus proporciones */
-  display: block;
-}
-
-.audio-card-body {
-  padding: 15px;
-  text-align: center;
-}
-
-.audio-card-title {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-}
-
-.audio-card-audio {
-  margin-top: 10px;
-}
-
-.audio-card .btn-primary {
-  margin-top: 15px;
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.audio-grid > .audio-card {
-  break-inside: avoid; /* Previene cortes en tarjetas para diseños tipo Masonry */
-  align-self: start; /* Permite que cada tarjeta tenga su propia altura */
+.masonry-grid-item {
+	margin-bottom: 15px; /* Espaciado vertical entre tarjetas */
 }

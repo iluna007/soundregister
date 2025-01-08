@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Masonry from "react-masonry-css"; // Importar react-masonry-css
 import AudioCard from "../components/AudioCard";
 import audioData from "../store/datatest";
 import "./AudioRecords.css";
@@ -14,6 +15,14 @@ const AudioRecords = () => {
 		filter === "All"
 			? audioData
 			: audioData.filter((audio) => audio.tags.includes(filter));
+
+	// Configuración de columnas para Masonry
+	const breakpointColumnsObj = {
+		default: 4, // 4 columnas para pantallas grandes
+		1100: 3, // 3 columnas para pantallas medianas
+		768: 2, // 2 columnas para pantallas pequeñas
+		500: 1, // 1 columna para pantallas muy pequeñas
+	};
 
 	return (
 		<div className='container mt-5'>
@@ -38,7 +47,11 @@ const AudioRecords = () => {
 					</button>
 				))}
 			</div>
-			<div className='audio-grid'>
+			<Masonry
+				breakpointCols={breakpointColumnsObj}
+				className='masonry-grid'
+				columnClassName='masonry-grid-column'
+			>
 				{filteredAudio.map((audio) => (
 					<AudioCard
 						key={audio.id}
@@ -48,7 +61,7 @@ const AudioRecords = () => {
 						audioUrl={audio.audioUrl}
 					/>
 				))}
-			</div>
+			</Masonry>
 		</div>
 	);
 };

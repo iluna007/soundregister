@@ -7,9 +7,9 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import RT from "./pages/ReactTest";
 import AuthPage from "./pages/AuthPage";
-import AudioUploadPage from "./pages/AudioUp";
-import AudioRecords from "./pages/AudioRecords"; // Corrige el nombre del archivo para que coincida con la importación
+import AudioRecords from "./pages/AudioRecords";
 import AudioRecordDetail from "./pages/AudioRecordDetail";
+import Dashboard from "./pages/dash";
 
 function App() {
 	return (
@@ -20,7 +20,7 @@ function App() {
 				<Route path='/about' element={<About />} />
 				<Route path='/reacttest' element={<RT />} />
 				<Route path='/auth' element={<AuthPage />} />
-				<Route path='/audio-upload' element={<AudioUploadPage />} />
+				<Route path='/dash' element={<Dashboard />} />
 				<Route path='/records' element={<AudioRecords />} />
 				<Route path='/records/:id' element={<AudioRecordDetail />} />
 			</Routes>

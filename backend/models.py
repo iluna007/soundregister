@@ -122,3 +122,13 @@ class AudioRecord(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Fecha de creación
 
     user = db.relationship('User', backref='audio_records')  # Relación para acceder al usuario
+
+
+class AudioRecordTest(db.Model):
+    __tablename__ = 'audio_record_test'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    audio_path = db.Column(db.String(255), nullable=False)  # Ruta del archivo de audio
+    image_path = db.Column(db.String(255), nullable=True)  # Ruta de la imagen opcional
+    audio_metadata = db.Column(JSON, nullable=True)  # Almacena los metadatos en formato JSON
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Fecha de creación

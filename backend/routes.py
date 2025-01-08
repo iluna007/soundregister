@@ -26,7 +26,7 @@ s3 = boto3.client(
 )
 
 # Nombre del bucket de S3
-bucket_name = 'bucket-for-aws-file-manager-web-apps'  # Cambia este valor por el nombre real de tu bucket
+bucket_name = 'sound-register-gs-bucket-1'  # Cambia este valor por el nombre real de tu bucket
 
 # @app.route('/')
 # def index():

@@ -221,60 +221,104 @@ def delete_user(user_id):
 # AUDIO ROUTES
 # ----------------------
 
-@bp.route('/upload-audio', methods=['POST'])
-#@login_required
-def upload_audio():
-    audio_file = request.files.get('audio')
-    image_file = request.files.get('image')
+# @bp.route('/upload-audio', methods=['POST'])
+# #@login_required
+# def upload_audio():
+#     audio_file = request.files.get('audio')
+#     image_file = request.files.get('image')
 
-    # Verificar que se suba un archivo de audio
-    if not audio_file:
-        return jsonify({'message': 'Audio file is required'}), 400
+#     # Verificar que se suba un archivo de audio
+#     if not audio_file:
+#         return jsonify({'message': 'Audio file is required'}), 400
 
-    # Guardar metadatos del formulario
-    audio_metadata = {
-        "date": request.form.get("date"),
-        "time": request.form.get("time"),
-        "season": request.form.get("season"),
-        "duration": request.form.get("duration"),
-        "location": request.form.get("location"),
-        "conditions": request.form.get("conditions"),
-        "temperature": request.form.get("temperature"),
-        "wind": request.form.get("wind"),
-        "recordist": request.form.get("recordist"),
-        "notes": request.form.get("notes"),
-    }
+#     # Guardar metadatos del formulario
+#     audio_metadata = {
+#         "date": request.form.get("date"),
+#         "time": request.form.get("time"),
+#         "season": request.form.get("season"),
+#         "duration": request.form.get("duration"),
+#         "location": request.form.get("location"),
+#         "conditions": request.form.get("conditions"),
+#         "temperature": request.form.get("temperature"),
+#         "wind": request.form.get("wind"),
+#         "recordist": request.form.get("recordist"),
+#         "notes": request.form.get("notes"),
+#     }
 
-    # Guardar archivos en directorios locales (puedes reemplazar con almacenamiento en la nube)
-    uploads_dir = os.path.join(os.getcwd(), 'uploads')
-    audio_dir = os.path.join(uploads_dir, 'audio')
-    image_dir = os.path.join(uploads_dir, 'images')
-    os.makedirs(audio_dir, exist_ok=True)
-    os.makedirs(image_dir, exist_ok=True)
+#     # Guardar archivos en directorios locales (puedes reemplazar con almacenamiento en la nube)
+#     uploads_dir = os.path.join(os.getcwd(), 'uploads')
+#     audio_dir = os.path.join(uploads_dir, 'audio')
+#     image_dir = os.path.join(uploads_dir, 'images')
+#     os.makedirs(audio_dir, exist_ok=True)
+#     os.makedirs(image_dir, exist_ok=True)
 
-    # Guardar el archivo de audio
-    audio_path = os.path.join(audio_dir, audio_file.filename)
-    audio_file.save(audio_path)
+#     # Guardar el archivo de audio
+#     audio_path = os.path.join(audio_dir, audio_file.filename)
+#     audio_file.save(audio_path)
 
-    # Guardar el archivo de imagen si existe
-    image_path = None
-    if image_file:
-        image_path = os.path.join(image_dir, image_file.filename)
-        image_file.save(image_path)
+#     # Guardar el archivo de imagen si existe
+#     image_path = None
+#     if image_file:
+#         image_path = os.path.join(image_dir, image_file.filename)
+#         image_file.save(image_path)
 
-    # Guardar datos en la base de datos
-    audio_record = AudioRecord(
-        user_id=current_user.id,
-        audio_path=audio_path,
-        image_path=image_path,
-        audio_metadata=audio_metadata  # Cambiado de "metadata" a "audio_metadata"
-    )
-    db.session.add(audio_record)
-    db.session.commit()
+#     # Guardar datos en la base de datos
+#     audio_record = AudioRecord(
+#         user_id=current_user.id,
+#         audio_path=audio_path,
+#         image_path=image_path,
+#         audio_metadata=audio_metadata  # Cambiado de "metadata" a "audio_metadata"
+#     )
+#     db.session.add(audio_record)
+#     db.session.commit()
 
-    return jsonify({'message': 'Audio uploaded successfully!'}), 201
+#     return jsonify({'message': 'Audio uploaded successfully!'}), 201
+
+@bp.route('/upload-files', methods=['POST'])
+def upload_file():
+    """Subir archivo a S3 desde React"""
+    try:
+        if 'audio' not in request.files:
+            return jsonify({"error": "No audio file provided"}), 400
+
+        file = request.files['audio']
+
+        if file.filename == '':
+            return jsonify({"error": "No file selected"}), 400
+
+        # Generar un nombre único para el archivo
+        file_extension = file.filename.split('.')[-1].lower()
+        unique_filename = f"{os.urandom(16).hex()}.{file_extension}"
+
+        # Subir el archivo a S3
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            unique_filename,
+            ExtraArgs={'ContentType': file.content_type}  # Configurar el tipo de contenido
+        )
+
+        return jsonify({
+            "message": f"File uploaded successfully as {unique_filename}",
+            "filename": unique_filename  # Devuelve solo el nombre del archivo
+        }), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
+@bp.route('/delete/<filename>', methods=['POST'])
+def delete_file(filename):
+    """Eliminar archivo del bucket de S3"""
+    try:
+        # Eliminar el archivo del bucket de S3
+        s3.delete_object(Bucket=bucket_name, Key=filename)
+        return jsonify({
+            "message": f"File {filename} deleted successfully"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Error deleting file: {str(e)}"}), 500
 
 # ----------------------
 # PRODUCT ROUTES

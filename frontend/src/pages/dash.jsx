@@ -3,6 +3,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import AudioUploadPage from "../components/AudioUp";
+import AudioUpFileTest from "../components/AudioUpFileTest";
 
 const Dashboard = () => {
 	const debugStyle = {
@@ -16,7 +17,7 @@ const Dashboard = () => {
 					Aqui va el GRID
 				</Col>
 				<Col sm={4} style={debugStyle}>
-                    <AudioUploadPage />
+                    <AudioUpFileTest />
 				</Col>
 			</Row>
 		</Container>

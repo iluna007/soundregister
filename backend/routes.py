@@ -285,6 +285,9 @@ def upload_file():
 
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
+        
+        # Guardar el nombre original del archivo
+        original_filename = file.filename
 
         # Generar un nombre único para el archivo
         file_extension = file.filename.split('.')[-1].lower()
@@ -299,9 +302,28 @@ def upload_file():
         )
 
         return jsonify({
-            "message": f"File uploaded successfully as {unique_filename}",
-            "filename": unique_filename  # Devuelve solo el nombre del archivo
+            "message": f"File uploaded successfully as {unique_filename} with original name {original_filename}",
+            "original_filename": original_filename,  # Nombre original del archivo
+            "unique_filename": unique_filename       # Nombre generado único
         }), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# listar elementos en aws bucket
+@bp.route('/list-files', methods=['GET'])
+def list_files():
+    """Listar archivos en el bucket de S3"""
+    try:
+        response = s3.list_objects_v2(Bucket=bucket_name)
+        files = []
+
+        if 'Contents' in response:
+            for content in response['Contents']:
+                files.append(content['Key'])  # Solo nombres de archivo
+
+        return jsonify({"files": files}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -319,6 +341,20 @@ def delete_file(filename):
 
     except Exception as e:
         return jsonify({"error": f"Error deleting file: {str(e)}"}), 500
+
+
+@bp.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    """Generar una URL temporal para descargar/visualizar el archivo desde S3"""
+    try:
+        file_url = s3.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': bucket_name, 'Key': filename},
+            ExpiresIn=3600  # La URL será válida por 1 hora
+        )
+        return redirect(file_url)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ----------------------
 # PRODUCT ROUTES

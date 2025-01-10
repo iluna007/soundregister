@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify, render_template,redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash,check_password_hash
 from backend import app, db
-from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage,AudioRecord
+from backend.models import User, Product, Cart, Order, CartItem, OrderItem, Address, ProductImage,AudioRecord,AudioRecordV
 from datetime import datetime
 from backend.forms import SignupForm, SigninForm
 import boto3
@@ -355,6 +355,104 @@ def download_file(filename):
         return redirect(file_url)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ----------------------
+# AUDIO METADATA RECORDS
+# ----------------------
+
+@bp.route('/save-audio-record', methods=['POST'])
+def save_audio_record():
+    """Guardar información del registro de audio"""
+    try:
+        data = request.json  # Obtener los datos del cliente (React)
+
+        # Validar que los campos requeridos estén presentes
+        required_fields = ['original_audio_name', 'audio_path']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Crear un nuevo registro en la base de datos
+        new_record = AudioRecordV(
+            original_audio_name=data['original_audio_name'],
+            audio_path=data['audio_path'],
+            image_path=data.get('image_path'),  # Opcional
+            date=data.get('date'),
+            time=data.get('time'),
+            location=data.get('location'),
+            conditions=data.get('conditions'),
+            temperature=data.get('temperature'),
+            wind_speed=data.get('wind_speed'),
+            wind_direction=data.get('wind_direction'),
+            recordist=data.get('recordist'),
+            notes=data.get('notes'),
+            tags=data.get('tags'),
+        )
+
+        # Guardar en la base de datos
+        db.session.add(new_record)
+        db.session.commit()
+
+        return jsonify({"message": "Audio record saved successfully!"}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@bp.route('/delete-audio-record/<int:record_id>', methods=['POST'])
+def delete_audio_record(record_id):
+    """Eliminar un registro de audio y el archivo asociado en S3"""
+    try:
+        # Buscar el registro en la base de datos
+        record = AudioRecordV.query.get(record_id)
+        if not record:
+            return jsonify({"error": "Audio record not found"}), 404
+
+        # Eliminar el archivo del bucket S3
+        if record.audio_path:
+            try:
+                s3.delete_object(Bucket=bucket_name, Key=record.audio_path)
+            except Exception as e:
+                return jsonify({"error": f"Error deleting file in S3: {str(e)}"}), 500
+
+        # Eliminar el registro de la base de datos
+        db.session.delete(record)
+        db.session.commit()
+
+        return jsonify({"message": "Audio record and associated file deleted successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.route('/list-audio-records', methods=['GET'])
+def list_audio_records():
+    """Listar todos los registros de audio"""
+    try:
+        records = AudioRecordV.query.all()
+        result = [
+            {
+                "id": record.id,
+                "original_audio_name": record.original_audio_name,
+                "audio_path": record.audio_path,
+                "image_path": record.image_path,
+                "date": record.date,
+                "time": record.time,
+                "location": record.location,
+                "conditions": record.conditions,
+                "temperature": record.temperature,
+                "wind_speed": record.wind_speed,
+                "wind_direction": record.wind_direction,
+                "recordist": record.recordist,
+                "notes": record.notes,
+                "tags": record.tags,
+            }
+            for record in records
+        ]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ----------------------
 # PRODUCT ROUTES

@@ -806,14 +806,30 @@ def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    user = User.query.filter_by(email=email).first()
-    print(user.email) 
+    #user = User.query.filter_by(email=email).first()
+    #print(user.email) 
 
-    if email != user.email or password != user.password: 
+    #if user is None:
+    #    return jsonify({"msg": "Bad email or password"}, 404)
+
+    if email != "test" or password != "test": 
         return jsonify({"msg": "Bad email or password"}), 401
 
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
+
+# Protect a route with jwt_required, which will kick out requests
+# without a valid JWT present.
+@app.route("/profile", methods=["GET"])
+@jwt_required()
+def get_profile():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
+
+
+if __name__ == "__main__":
+    app.run()
 
 # ----------------------------------------------------------------------------------------------------------------
 # 							Routes for pages

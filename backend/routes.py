@@ -12,6 +12,14 @@ from backend.forms import SignupForm, SigninForm
 import boto3
 import cloudinary.uploader
 
+
+# JSON Web Tokens
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+
+
 bp = Blueprint('api', __name__)
 
 # Blueprint para las vistas principales de flask
@@ -27,6 +35,11 @@ s3 = boto3.client(
 
 # Nombre del bucket de S3
 bucket_name = 'sound-register-gs-bucket-1'  # Cambia este valor por el nombre real de tu bucket
+
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
 
 # @app.route('/')
 # def index():
@@ -273,6 +286,12 @@ def delete_user(user_id):
 #     db.session.commit()
 
 #     return jsonify({'message': 'Audio uploaded successfully!'}), 201
+
+# Create a route to authenticate your users and return JWTs. The
+# create_access_token() function is used to actually generate the JWT.
+
+
+
 
 @bp.route('/upload-files', methods=['POST'])
 def upload_file():
@@ -779,9 +798,26 @@ def delete_order(order_id):
 
 
 # ----------------------------------------------------------------------------------------------------------------
-# 							Routes for pages
+# 							Routes for authentication 
 # ----------------------------------------------------------------------------------------------------------------
 
+@app.route("/login", methods=["POST"])
+def login():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    user = User.query.filter_by(email=email).first()
+    print(user.email) 
+
+    if email != user.email or password != user.password: 
+        return jsonify({"msg": "Bad email or password"}), 401
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token)
+
+# ----------------------------------------------------------------------------------------------------------------
+# 							Routes for pages
+# ----------------------------------------------------------------------------------------------------------------
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

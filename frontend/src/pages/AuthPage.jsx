@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const AuthPage = () => {
 	const navigate = useNavigate(); // Hook para navegación
@@ -25,6 +26,16 @@ const AuthPage = () => {
 	// Manejar cambios en los inputs
 	const handleChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
+
+	// Manejar éxito y error de Google Login
+	const handleGoogleSuccess = (credentialResponse) => {
+		console.log("Google Login Success:", credentialResponse);
+		navigate("/dash"); // Redirige al dashboard tras éxito
+	};
+
+	const handleGoogleError = () => {
+		setError("Google Login Failed");
 	};
 
 	// Enviar el formulario
@@ -158,6 +169,13 @@ const AuthPage = () => {
 							{isSignUp ? "Sign Up" : "Sign In"}
 						</Button>
 					</Form>
+
+					{/* Botón de Google Login */}
+					<GoogleLoginButton
+						onSuccess={handleGoogleSuccess}
+						onError={handleGoogleError}
+					/>
+
 					<div className='text-center mt-3'>
 						<Button variant='link' onClick={handleToggle}>
 							{isSignUp

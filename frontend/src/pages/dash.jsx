@@ -36,11 +36,11 @@ const Dashboard = () => {
             {/* Bloque 1 */}
             <Row className="my-4" style={dashedLineStyle}>
                 <Col sm={8} style={debugStyle}>
-                    <h3>Bloque 1: Gestor de Ficheros</h3>
+                    <h3>Block 1: Files</h3>
                     <FileManager triggerRefresh={refreshTrigger1} />
                 </Col>
                 <Col sm={4}>
-                    <h3>Formulario de Subida</h3>
+                    <h3>Upload file</h3>
                     <AudioUpFileTest onFileUploaded={handleFileUploaded} />
                 </Col>
             </Row>
@@ -48,11 +48,11 @@ const Dashboard = () => {
             {/* Bloque 2 */}
             <Row className="my-4">
                 <Col sm={8} style={debugStyle}>
-                    <h3>Bloque 2: Registros de Audio</h3>
+                    <h3>Bloque 2: Audio register</h3>
                     <AudioRecordsList triggerRefresh={refreshTrigger2} onDeleteSuccess={handleDataUpdated} />
                 </Col>
                 <Col sm={4}>
-                    <h3>Formulario de Atributos</h3>
+                    <h3>Attributes</h3>
                     <AudioMetadataForm onDataUpdated={handleDataUpdated} />
                 </Col>
             </Row>

@@ -391,8 +391,12 @@ def login():
         return jsonify({"msg": "Invalid email or password"}), 401
 
     # Generate the JWT access token
-    access_token = create_access_token(identity={"id": user.id, "email": user.email})
+    access_token = create_access_token(
+        identity=str(user.id),  # Usar el ID como cadena para `identity`
+        additional_claims={"email": user.email}  # Información adicional en los claims
+    )
     return jsonify(access_token=access_token, user={"id": user.id, "email": user.email, "username": user.username}), 200
+
 
 
 # Protect a route with jwt_required, which will kick out requests
@@ -402,11 +406,19 @@ def login():
 def get_profile():
     # Access the identity of the current user with get_jwt_identity
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    user = User.query.filter_by(email=current_user).first()
+
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email
+    }), 200
 
 
-if __name__ == "__main__":
-    app.run()
+
+
+# route ends here   ----------------------
+
 
 
 

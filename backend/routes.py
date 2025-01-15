@@ -42,9 +42,64 @@ app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
 
 
+# ----------------------    VIEWS    ----------------------
+@app.route("/")
+def home():
+    return render_template("index.html")
 
+@app.route("/users")
+def users():
+    # Consultar todos los usuarios
+    users = User.query.all()
+    return render_template("users.html", users=users)
 
+# ----------------------    CREATE, EDIT OR ELIMINATE USERS    ----------------------
 
+@app.route("/users/create", methods=["GET", "POST"])
+def create_user():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        password_hash = generate_password_hash(password)
+
+        new_user = User(username=username, email=email, password_hash=password_hash)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("User created successfully!", "success")
+        return redirect(url_for("users"))
+
+    return render_template("create_user.html")
+
+# Ruta para editar un usuario existente
+@app.route("/users/edit/<int:user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if request.method == "POST":
+        user.username = request.form.get("username")
+        user.email = request.form.get("email")
+        password = request.form.get("password")
+        if password:  # Solo actualizar la contraseña si se proporciona
+            user.password_hash = generate_password_hash(password)
+
+        db.session.commit()
+
+        flash("User updated successfully!", "success")
+        return redirect(url_for("users"))
+
+    return render_template("edit_user.html", user=user)
+
+# Ruta para eliminar un usuario
+@app.route("/users/delete/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+
+    flash("User deleted successfully!", "danger")
+    return redirect(url_for("users"))
 # ----------------------------------------------------------------------------------------------------------------
 # 							ENDPOINTS
 # ----------------------------------------------------------------------------------------------------------------
@@ -316,26 +371,29 @@ def list_audio_records():
 
 
 
-# ----------------------------------------------------------------------------------------------------------------
-# 							Routes for authentication 
-# ----------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------
+# 	Routes for authentication 
+# ------------------------------------------------------------
 
 @app.route("/login", methods=["POST"])
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    #user = User.query.filter_by(email=email).first()
-    #print(user.email) 
+    if not email or not password:
+        return jsonify({"msg": "Email and password are required"}), 400
 
-    #if user is None:
-    #    return jsonify({"msg": "Bad email or password"}, 404)
+    # Query the database for the user
+    user = User.query.filter_by(email=email).first()
 
-    if email != "test" or password != "test": 
-        return jsonify({"msg": "Bad email or password"}), 401
+    # Check if the user exists and the password is correct
+    if not user or not check_password_hash(user.password_hash, password):
+        return jsonify({"msg": "Invalid email or password"}), 401
 
-    access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token)
+    # Generate the JWT access token
+    access_token = create_access_token(identity={"id": user.id, "email": user.email})
+    return jsonify(access_token=access_token, user={"id": user.id, "email": user.email, "username": user.username}), 200
+
 
 # Protect a route with jwt_required, which will kick out requests
 # without a valid JWT present.

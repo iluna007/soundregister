@@ -32,6 +32,9 @@ const Header = () => {
 						<Nav.Link as={Link} to='/records'>
 							Records
 						</Nav.Link>
+						<Nav.Link as={Link} to='/flux-test'>
+							Flux Test
+						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
 			</Container>

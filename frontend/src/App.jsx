@@ -1,5 +1,5 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css"; // Corrige la ruta del CSS de Bootstrap
+import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Header from "./components/Header";
@@ -10,6 +10,7 @@ import AuthPage from "./pages/AuthPage";
 import AudioRecords from "./pages/AudioRecords";
 import AudioRecordDetail from "./pages/AudioRecordDetail";
 import Dashboard from "./pages/dash";
+import MainComponent from "./components/MainComponent"; // Importa el nuevo componente
 
 function App() {
 	return (
@@ -23,6 +24,7 @@ function App() {
 				<Route path='/dash' element={<Dashboard />} />
 				<Route path='/records' element={<AudioRecords />} />
 				<Route path='/records/:id' element={<AudioRecordDetail />} />
+				<Route path='/flux-test' element={<MainComponent />} />
 			</Routes>
 		</Router>
 	);

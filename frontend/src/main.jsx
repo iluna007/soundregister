@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // Importa el proveedor de Google OAuth
+import { AppProvider } from "./AppContext"; // Contexto global
 import "./index.css";
 import App from "./App.jsx";
 
@@ -10,7 +11,9 @@ const CLIENT_ID =
 createRoot(document.getElementById("root")).render(
 	<StrictMode>
 		<GoogleOAuthProvider clientId={CLIENT_ID}>
-			<App />
+			<AppProvider>
+				<App />
+			</AppProvider>
 		</GoogleOAuthProvider>
 	</StrictMode>
 );

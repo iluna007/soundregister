@@ -1,24 +1,25 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Alert } from "react-bootstrap";
+import { uploadAudio } from "../actions/appActions";
+import appStore from "../store/appStore";
 
-const AudioUploadPage = () => {
+const AudioUp = () => {
 	const [formData, setFormData] = useState({
 		date: "",
 		time: "",
-		season: "Winter", // Predeterminado a 'Winter'
-		duration: "00:00:00", // Duración predeterminada en formato hh:mm:ss
-		location: "", // Formato: Lat, Long
-		conditions: "Clear", // Condición predeterminada
-		temperature: "0°C", // Formato para grados Celsius
-		wind: "NW 0 km/h", // Predeterminado a dirección y velocidad
-		recordistance: "0 meters", // Predeterminado con unidades
+		season: "Winter",
+		duration: "00:00:00",
+		location: "",
+		conditions: "Clear",
+		temperature: "0",
+		wind_speed: "0",
+		wind_direction: "N",
+		recordist: "",
 		notes: "",
 		tags: "",
 	});
 	const [audioFile, setAudioFile] = useState(null);
-	const [imageFile, setImageFile] = useState(null);
-	const [message, setMessage] = useState(null);
-	const [error, setError] = useState(null);
+	const { uploadMessage, uploadError } = appStore.getState();
 
 	const handleChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,45 +29,37 @@ const AudioUploadPage = () => {
 		setAudioFile(e.target.files[0]);
 	};
 
-	const handleImageChange = (e) => {
-		setImageFile(e.target.files[0]);
-	};
-
-	const handleSubmit = async (e) => {
+	const handleSubmit = (e) => {
 		e.preventDefault();
 
+		// Verificar que todos los campos requeridos estén completos
+		for (const key in formData) {
+			if (!formData[key]) {
+				alert(`Field ${key} is required.`);
+				return;
+			}
+		}
+
+		if (!audioFile) {
+			alert("Audio file is required.");
+			return;
+		}
+
+		// Crear FormData para enviar al backend
 		const formDataToSend = new FormData();
 		Object.keys(formData).forEach((key) => {
 			formDataToSend.append(key, formData[key]);
 		});
-		if (audioFile) formDataToSend.append("audio", audioFile);
-		if (imageFile) formDataToSend.append("image", imageFile);
+		formDataToSend.append("audio", audioFile);
 
-		try {
-			const response = await fetch("http://localhost:5000/api/upload-audio", {
-				method: "POST",
-				body: formDataToSend,
-			});
-
-			if (!response.ok) {
-				const errorData = await response.text();
-				throw new Error(errorData || "An error occurred.");
-			}
-
-			const data = await response.json();
-			setMessage(data.message || "Audio uploaded successfully!");
-			setError(null);
-		} catch (err) {
-			setError(err.message || "An error occurred.");
-			setMessage(null);
-		}
+		// Llamar a la acción de Flux
+		uploadAudio(formDataToSend)(appStore.handleAction.bind(appStore));
 	};
 
 	return (
 		<Container className='mt-5'>
-			<h2 className='text-center'>Upload Audio</h2>
-			{message && <Alert variant='success'>{message}</Alert>}
-			{error && <Alert variant='danger'>{error}</Alert>}
+			{uploadMessage && <Alert variant='success'>{uploadMessage}</Alert>}
+			{uploadError && <Alert variant='danger'>{uploadError}</Alert>}
 			<Form onSubmit={handleSubmit}>
 				<Form.Group className='mb-3'>
 					<Form.Label>Date</Form.Label>
@@ -110,7 +103,7 @@ const AudioUploadPage = () => {
 						value={formData.duration}
 						onChange={handleChange}
 						placeholder='00:00:00'
-						pattern='\d{2}:\d{2}:\d{2}' // Validación para formato hh:mm:ss
+						pattern='\d{2}:\d{2}:\d{2}'
 						required
 					/>
 				</Form.Group>
@@ -122,7 +115,6 @@ const AudioUploadPage = () => {
 						value={formData.location}
 						onChange={handleChange}
 						placeholder='e.g., 37.7749, -122.4194'
-						pattern='^-?\d{1,3}\.\d+,\s*-?\d{1,3}\.\d+$' // Validación de coordenadas
 						required
 					/>
 				</Form.Group>
@@ -133,7 +125,7 @@ const AudioUploadPage = () => {
 						name='conditions'
 						value={formData.conditions}
 						onChange={handleChange}
-						placeholder='e.g., Clear, Few clouds'
+						required
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
@@ -143,30 +135,37 @@ const AudioUploadPage = () => {
 						name='temperature'
 						value={formData.temperature}
 						onChange={handleChange}
-						placeholder='e.g., 20°C'
-						pattern='^-?\d+°C$' // Validación para formato de temperatura
 						required
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
-					<Form.Label>Wind (e.g., NW 10 km/h)</Form.Label>
+					<Form.Label>Wind Speed</Form.Label>
 					<Form.Control
 						type='text'
-						name='wind'
-						value={formData.wind}
+						name='wind_speed'
+						value={formData.wind_speed}
 						onChange={handleChange}
-						placeholder='e.g., NW 10 km/h'
+						required
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
-					<Form.Label>Record Distance (meters)</Form.Label>
+					<Form.Label>Wind Direction</Form.Label>
 					<Form.Control
 						type='text'
-						name='recordistance'
-						value={formData.recordistance}
+						name='wind_direction'
+						value={formData.wind_direction}
 						onChange={handleChange}
-						placeholder='e.g., 100 meters'
-						pattern='^\d+\s*meters$' // Validación para metros
+						required
+					/>
+				</Form.Group>
+				<Form.Group className='mb-3'>
+					<Form.Label>Recordist</Form.Label>
+					<Form.Control
+						type='text'
+						name='recordist'
+						value={formData.recordist}
+						onChange={handleChange}
+						required
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
@@ -176,7 +175,6 @@ const AudioUploadPage = () => {
 						name='notes'
 						value={formData.notes}
 						onChange={handleChange}
-						placeholder='Enter notes about the audio'
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
@@ -186,7 +184,6 @@ const AudioUploadPage = () => {
 						name='tags'
 						value={formData.tags}
 						onChange={handleChange}
-						placeholder='Enter tags separated by commas'
 					/>
 				</Form.Group>
 				<Form.Group className='mb-3'>
@@ -198,14 +195,6 @@ const AudioUploadPage = () => {
 						required
 					/>
 				</Form.Group>
-				<Form.Group className='mb-3'>
-					<Form.Label>Image</Form.Label>
-					<Form.Control
-						type='file'
-						accept='image/*'
-						onChange={handleImageChange}
-					/>
-				</Form.Group>
 				<Button variant='primary' type='submit'>
 					Upload
 				</Button>
@@ -214,4 +203,4 @@ const AudioUploadPage = () => {
 	);
 };
 
-export default AudioUploadPage;
+export default AudioUp;

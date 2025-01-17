@@ -53,6 +53,26 @@ def users():
     users = User.query.all()
     return render_template("users.html", users=users)
 
+@app.route('/users/<int:user_id>/files', methods=['GET'])
+def user_files(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    files = AudioRecord.query.filter_by(user_id=user_id).all()
+    result = [
+        {
+            "id": file.id,
+            "original_audio_name": file.original_audio_name,
+            "audio_path": file.audio_path,
+            "date": file.date,
+            "time": file.time,
+        }
+        for file in files
+    ]
+    return jsonify(result), 200
+
+
 # ----------------------    CREATE, EDIT OR ELIMINATE USERS    ----------------------
 
 @app.route("/users/create", methods=["GET", "POST"])
@@ -482,5 +502,14 @@ def signout():
     return redirect(url_for('signin'))  # Redirige a la página de inicio de sesión
 
 
+@bp.route('/users/<int:user_id>/audio-records', methods=['GET'])
+def user_audio_records(user_id):
+    """Listar los archivos de audio subidos por un usuario específico"""
+    try:
+        user = User.query.get_or_404(user_id)
+        records = AudioRecordV.query.filter_by(user_id=user_id).all()
+        return render_template("user_audio_records.html", user=user, records=records)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
     

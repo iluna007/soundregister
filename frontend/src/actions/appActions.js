@@ -8,6 +8,9 @@ export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
 export const REGISTER_FAILURE = "REGISTER_FAILURE";
 
+export const UPLOAD_AUDIO_SUCCESS = "UPLOAD_AUDIO_SUCCESS";
+export const UPLOAD_AUDIO_FAILURE = "UPLOAD_AUDIO_FAILURE";
+
 // Función para crear una acción de establecer datos
 export const setData = (data) => ({
 	type: SET_DATA,
@@ -84,6 +87,69 @@ export const registerUser = (username, email, password) => {
 			dispatch({ type: REGISTER_SUCCESS, payload: data.message }); // Mensaje de éxito
 		} catch (error) {
 			dispatch({ type: REGISTER_FAILURE, payload: error.message }); // Mostrar error en frontend
+		}
+	};
+};
+
+
+// Obtener registros de audio
+export const fetchAudioRecords = async () => {
+	try {
+		const response = await fetch("http://localhost:5000/api/list-audio-records", {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
+
+		if (!response.ok) {
+			throw new Error("Failed to fetch audio records");
+		}
+
+		return await response.json();
+	} catch (error) {
+		console.error("Error fetching audio records:", error);
+		throw error;
+	}
+};
+
+// Eliminar un registro de audio
+export const deleteAudioRecord = async (id) => {
+	try {
+		const response = await fetch(
+			`http://localhost:5000/api/delete-audio-record/${id}`,
+			{
+				method: "POST",
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error("Failed to delete audio record");
+		}
+
+		return await response.json();
+	} catch (error) {
+		console.error("Error deleting audio record:", error);
+		throw error;
+	}
+};
+
+// Subir un nuevo audio
+export const uploadAudio = (formData) => {
+	return async (dispatch) => {
+		try {
+			const response = await fetch("http://localhost:5000/api/upload-files", {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) {
+				const errorData = await response.text();
+				throw new Error(errorData || "Upload failed");
+			}
+
+			const data = await response.json();
+			dispatch({ type: UPLOAD_AUDIO_SUCCESS, payload: data.message });
+		} catch (error) {
+			dispatch({ type: UPLOAD_AUDIO_FAILURE, payload: error.message });
 		}
 	};
 };

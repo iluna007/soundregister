@@ -7,6 +7,8 @@ import {
 	LOGIN_FAILURE,
 	REGISTER_SUCCESS,
 	REGISTER_FAILURE,
+	UPLOAD_AUDIO_SUCCESS,
+	UPLOAD_AUDIO_FAILURE,
 } from "../actions/appActions";
 
 class AppStore {
@@ -89,6 +91,22 @@ class AppStore {
 					...this.state,
 					registerError: action.payload,
 					registerMessage: null,
+				};
+				this.emitChange();
+				break;
+			case UPLOAD_AUDIO_SUCCESS:
+				this.state = {
+					...this.state,
+					uploadMessage: action.payload,
+					uploadError: null,
+				};
+				this.emitChange();
+				break;
+			case UPLOAD_AUDIO_FAILURE:
+				this.state = {
+					...this.state,
+					uploadMessage: null,
+					uploadError: action.payload,
 				};
 				this.emitChange();
 				break;

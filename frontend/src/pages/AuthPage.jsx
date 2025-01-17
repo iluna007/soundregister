@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import GoogleLoginButton from "../components/GoogleLoginButton";
+import { loginUser, registerUser } from "../actions/appActions";
+import appStore from "../store/appStore";
 
 const AuthPage = () => {
-	const navigate = useNavigate(); // Hook para navegación
+	const navigate = useNavigate();
 	const [isSignUp, setIsSignUp] = useState(false);
 	const [formData, setFormData] = useState({
 		username: "",
@@ -12,99 +13,67 @@ const AuthPage = () => {
 		password: "",
 		confirmPassword: "",
 	});
-	const [message, setMessage] = useState(null);
-	const [error, setError] = useState(null);
 
-	// Alternar entre Sign Up y Sign In
+	const { authError, registerError, registerMessage } = appStore.getState();
+
+	// Limpiar mensaje al montar el componente
+	useEffect(() => {
+		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje al montar
+	}, []);
+
+	// Escuchar cambios en el Store para redirigir al Dashboard o manejar el registro exitoso
+	useEffect(() => {
+		const handleStoreChange = () => {
+			const { user, registerMessage } = appStore.getState();
+
+			// Redirigir al Dashboard tras login exitoso
+			if (user) {
+				navigate("/dash");
+			}
+
+			// Cambiar al modo Sign In tras registro exitoso
+			if (registerMessage) {
+				setTimeout(() => {
+					setIsSignUp(false); // Cambia al modo Sign In
+					appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje de registro
+				}, 2000); // Retraso de 2 segundos para mostrar el mensaje
+			}
+		};
+
+		appStore.subscribe(handleStoreChange);
+		return () => appStore.unsubscribe(handleStoreChange);
+	}, [navigate]);
+
 	const handleToggle = () => {
 		setIsSignUp(!isSignUp);
 		setFormData({ username: "", email: "", password: "", confirmPassword: "" });
-		setMessage(null);
-		setError(null);
+		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje al alternar entre modos
 	};
 
-	// Manejar cambios en los inputs
 	const handleChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	// Manejar éxito y error de Google Login
-	const handleGoogleSuccess = (credentialResponse) => {
-		console.log("Google Login Success:", credentialResponse);
-		navigate("/dash"); // Redirige al dashboard tras éxito
-	};
-
-	const handleGoogleError = () => {
-		setError("Google Login Failed");
-	};
-
-	// Enviar el formulario
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		// Validación del lado del cliente
-		if (isSignUp && formData.password !== formData.confirmPassword) {
-			setError("Passwords do not match!");
-			return;
-		}
-
-		// Configuración de endpoint y payload
-		const endpoint = isSignUp
-			? "http://localhost:5000/api/users"
-			: "http://localhost:5000/api/signin";
-
-		const payload = isSignUp
-			? {
-					username: formData.username,
-					email: formData.email,
-					password: formData.password,
-			  }
-			: {
-					email: formData.email,
-					password: formData.password,
-			  };
-
-		try {
-			const response = await fetch(endpoint, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-
-			// Manejo de errores del backend
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || "An error occurred.");
-			}
-
-			// Analizar respuesta exitosa
-			const data = await response.json();
-			setMessage(
-				data.message ||
-					(isSignUp ? "User created successfully!" : "Login successful!")
-			);
-			setError(null);
-
-			// Limpia el formulario tras éxito en Sign Up
-			if (isSignUp) {
-				setFormData({
-					username: "",
-					email: "",
-					password: "",
-					confirmPassword: "",
+		if (isSignUp) {
+			if (formData.password !== formData.confirmPassword) {
+				return appStore.handleAction({
+					type: "REGISTER_FAILURE",
+					payload: "Passwords do not match",
 				});
 			}
-
-			// Redirigir al Dashboard tras inicio de sesión exitoso
-			if (!isSignUp) {
-				console.log("Logged in user:", data.user);
-				navigate("/dash"); // Redirige a /dash
-			}
-		} catch (err) {
-			setError(err.message || "An error occurred.");
-			setMessage(null);
+			registerUser(
+				formData.username,
+				formData.email,
+				formData.password
+			)(appStore.handleAction.bind(appStore));
+		} else {
+			loginUser(
+				formData.email,
+				formData.password
+			)(appStore.handleAction.bind(appStore));
 		}
 	};
 
@@ -114,8 +83,12 @@ const AuthPage = () => {
 				<Col></Col>
 				<Col>
 					<h2 className='text-center'>{isSignUp ? "Sign Up" : "Sign In"}</h2>
-					{message && <Alert variant='success'>{message}</Alert>}
-					{error && <Alert variant='danger'>{error}</Alert>}
+					{registerMessage && (
+						<Alert variant='success'>{registerMessage}</Alert>
+					)}
+					{(authError || registerError) && (
+						<Alert variant='danger'>{authError || registerError}</Alert>
+					)}
 					<Form onSubmit={handleSubmit}>
 						{isSignUp && (
 							<Form.Group className='mb-3'>
@@ -169,13 +142,6 @@ const AuthPage = () => {
 							{isSignUp ? "Sign Up" : "Sign In"}
 						</Button>
 					</Form>
-
-					{/* Botón de Google Login */}
-					<GoogleLoginButton
-						onSuccess={handleGoogleSuccess}
-						onError={handleGoogleError}
-					/>
-
 					<div className='text-center mt-3'>
 						<Button variant='link' onClick={handleToggle}>
 							{isSignUp

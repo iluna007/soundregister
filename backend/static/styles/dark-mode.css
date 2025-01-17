@@ -1,0 +1,44 @@
+/* General Dark Mode Styles */
+body {
+    background-color: #121212; /* Fondo oscuro */
+    color: #e0e0e0; /* Texto claro */
+}
+
+h1 {
+    color: #90caf9; /* Azul claro para encabezados */
+}
+
+p {
+    color: #b0bec5; /* Texto suave para descripciones */
+}
+
+/* Botones */
+.btn-primary {
+    background-color: #1e88e5; /* Azul oscuro */
+    border-color: #1e88e5;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1565c0; /* Azul más oscuro */
+    border-color: #1565c0;
+}
+
+/* Links */
+a {
+    color: #90caf9;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #42a5f5;
+    text-decoration: underline;
+}
+
+/* Containers */
+.container {
+    background-color: #1e1e1e; /* Fondo de los contenedores */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra ligera */
+}

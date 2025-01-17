@@ -1,42 +1,39 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* General Styles */
+body {
+    background-color: #121212; /* Fondo oscuro */
+    color: #ffffff; /* Texto claro */
+    font-family: Arial, sans-serif; /* Tipografía global */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transiciones suaves */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Heading Styles */
+h1 {
+    color: #90caf9; /* Azul claro para destacar encabezados */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Paragraph Styles */
+p {
+    color: #e0e0e0; /* Texto ligeramente más claro */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Button Styles */
+.btn {
+    color: #121212; /* Texto oscuro en el botón */
+    background-color: #90caf9; /* Azul claro */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transiciones suaves */
 }
 
-.card {
-  padding: 2em;
+.btn:hover {
+    background-color: #42a5f5; /* Azul más intenso al pasar el cursor */
+    color: #ffffff; /* Texto claro al hacer hover */
 }
 
-.read-the-docs {
-  color: #888;
+/* Optional: Styles for Links */
+a {
+    color: #90caf9; /* Azul claro para enlaces */
+    text-decoration: none;
+}
+
+a:hover {
+    color: #42a5f5; /* Azul más intenso en hover */
 }

@@ -3,6 +3,10 @@ import {
 	SET_DATA,
 	RESET_DATA,
 	FETCH_PING_SUCCESS,
+	LOGIN_SUCCESS,
+	LOGIN_FAILURE,
+	REGISTER_SUCCESS,
+	REGISTER_FAILURE,
 } from "../actions/appActions";
 
 class AppStore {
@@ -10,6 +14,11 @@ class AppStore {
 		this.state = {
 			data: null, // Estado inicial
 			pingMessage: null, // Nuevo estado para almacenar la respuesta del ping
+			user: null, // Almacena los datos del usuario autenticado
+			token: null, // Almacena el token JWT
+			authError: null, // Manejar errores de autenticación
+			registerError: null, // Para manejar errores de registro
+			registerMessage: null, // Para mostrar mensajes exitosos de registro
 		};
 		this.listeners = new Set();
 	}
@@ -45,11 +54,43 @@ class AppStore {
 				this.state = { ...this.state, data: null };
 				this.emitChange();
 				break;
-			case FETCH_PING_SUCCESS: // Manejar la acción de ping
+			case FETCH_PING_SUCCESS:
 				this.state = { ...this.state, pingMessage: action.payload };
 				this.emitChange();
 				break;
-			default:
+			case LOGIN_SUCCESS:
+				this.state = {
+					...this.state,
+					user: action.payload.user,
+					token: action.payload.access_token,
+					authError: null,
+				};
+				this.emitChange();
+				break;
+			case LOGIN_FAILURE: // Manejar errores de autenticación
+				this.state = {
+					...this.state,
+					user: null,
+					token: null,
+					authError: action.payload,
+				};
+				this.emitChange();
+				break;
+			case REGISTER_SUCCESS:
+				this.state = {
+					...this.state,
+					registerMessage: "User registered successfully!",
+					registerError: null,
+				};
+				this.emitChange();
+				break;
+			case REGISTER_FAILURE:
+				this.state = {
+					...this.state,
+					registerError: action.payload,
+					registerMessage: null,
+				};
+				this.emitChange();
 				break;
 		}
 	}

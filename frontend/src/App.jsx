@@ -11,6 +11,8 @@ import AudioRecords from "./pages/AudioRecords";
 import AudioRecordDetail from "./pages/AudioRecordDetail";
 import Dashboard from "./pages/dash";
 import MainComponent from "./components/MainComponent"; // Importa el nuevo componente
+import ProtectedRoute from "./components/ProtectedRoute"; // Importar ruta protegida
+
 
 function App() {
 	return (
@@ -21,7 +23,14 @@ function App() {
 				<Route path='/about' element={<About />} />
 				<Route path='/reacttest' element={<RT />} />
 				<Route path='/auth' element={<AuthPage />} />
-				<Route path='/dash' element={<Dashboard />} />
+				<Route
+					path='/dash'
+					element={
+						<ProtectedRoute>
+							<Dashboard />
+						</ProtectedRoute>
+					}
+				/>
 				<Route path='/records' element={<AudioRecords />} />
 				<Route path='/records/:id' element={<AudioRecordDetail />} />
 				<Route path='/flux-test' element={<MainComponent />} />

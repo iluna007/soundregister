@@ -116,11 +116,34 @@ def ping():
 @bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')  # Hash the plain password
-    user = User(username=data['username'], email=data['email'], password_hash=hashed_password)
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    # Verificar campos requeridos
+    if not username or not email or not password:
+        return jsonify({"message": "Missing required fields"}), 400
+
+    # Verificar si el correo ya existe
+    existing_email = User.query.filter_by(email=email).first()
+    if existing_email:
+        return jsonify({"message": "This email is already registered"}), 409
+
+    # Verificar si el nombre de usuario ya existe
+    existing_username = User.query.filter_by(username=username).first()
+    if existing_username:
+        return jsonify({"message": "This username is already taken"}), 409
+
+    # Crear el usuario
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+    user = User(username=username, email=email, password_hash=hashed_password)
     db.session.add(user)
     db.session.commit()
-    return jsonify({'id': user.id}), 201
+
+    return jsonify({"id": user.id, "message": "User created successfully!"}), 201
+
+
+
     
 @bp.route('/users', methods=['GET'])
 def get_all_users():

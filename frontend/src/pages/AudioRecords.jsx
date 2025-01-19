@@ -1,20 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Masonry from "react-masonry-css"; // Importar react-masonry-css
 import AudioCard from "../components/AudioCard";
-import audioData from "../store/datatest";
+import appStore from "../store/appStore"; // Importar el store
+import { fetchAllAudioRecords } from "../actions/appActions"; // Importar la acción
 import "./AudioRecords.css";
+import AudioFileList from "../components/AudioFileList";
 
 const AudioRecords = () => {
 	const [filter, setFilter] = useState("All");
+	const [audioRecords, setAudioRecords] = useState([]);
+
+	// Cargar los datos al montar el componente
+	useEffect(() => {
+		const loadAudioRecords = async () => {
+			try {
+				const records = await fetchAllAudioRecords();
+				setAudioRecords(records);
+			} catch (error) {
+				console.error("Failed to fetch audio records:", error);
+			}
+		};
+		loadAudioRecords();
+	}, []);
 
 	// Obtener una lista única de tags
-	const allTags = Array.from(new Set(audioData.flatMap((audio) => audio.tags)));
+	const allTags = Array.from(
+		new Set(
+			audioRecords.flatMap((audio) => audio.tags.map((tag) => tag.trim()))
+		)
+	);
 
 	// Filtrar los datos de audio
 	const filteredAudio =
 		filter === "All"
-			? audioData
-			: audioData.filter((audio) => audio.tags.includes(filter));
+			? audioRecords
+			: audioRecords.filter((audio) =>
+					audio.tags.some(
+						(tag) => tag.trim().toLowerCase() === filter.toLowerCase()
+					)
+			  );
 
 	// Configuración de columnas para Masonry
 	const breakpointColumnsObj = {
@@ -57,8 +81,9 @@ const AudioRecords = () => {
 						key={audio.id}
 						id={audio.id}
 						title={audio.title}
-						imageUrl={audio.imageUrl}
-						audioUrl={audio.audioUrl}
+						audioUrl={audio.audio_path} // Asegúrate de pasar audio.audio_path aquí
+						tags={audio.tags}
+						userName={audio.user_name}
 					/>
 				))}
 			</Masonry>

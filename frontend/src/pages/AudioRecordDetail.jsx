@@ -1,62 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import audioData from "../store/datatest";
+import appStore from "../store/appStore"; // Importar el store
+import { fetchAllAudioRecords } from "../actions/appActions"; // Importar la acción
 
 const AudioRecordDetail = () => {
-	const { id } = useParams();
-	const audio = audioData.find((item) => item.id === parseInt(id));
+	const { id } = useParams(); // Obtener el ID desde la URL
+	const [audioDetails, setAudioDetails] = useState(null);
+	const [error, setError] = useState(null);
 
-	if (!audio) {
-		return <div>Audio record not found!</div>;
+	useEffect(() => {
+		const fetchDetails = async () => {
+			try {
+				// Obteniendo todos los registros desde el store o la acción
+				const records = await fetchAllAudioRecords();
+
+				// Encontrar el registro específico por ID
+				const record = records.find((audio) => audio.id === parseInt(id));
+
+				if (!record) {
+					setError("Audio record not found.");
+				} else {
+					setAudioDetails(record);
+				}
+			} catch (err) {
+				console.error("Error fetching audio details:", err);
+				setError("Failed to load audio details.");
+			}
+		};
+
+		fetchDetails();
+	}, [id]);
+
+	if (error) {
+		return <div className='alert alert-danger'>{error}</div>;
+	}
+
+	if (!audioDetails) {
+		return <div>Loading...</div>;
 	}
 
 	return (
 		<div className='container mt-5'>
-			<h1 className='mb-4'>{audio.notes}</h1>
-			<div className='row'>
-				<div className='col-md-6'>
-					<img
-						src={audio.imageUrl}
-						alt={audio.notes}
-						className='img-fluid rounded'
-					/>
-				</div>
-				<div className='col-md-6'>
-					<ul className='list-group'>
-						<li className='list-group-item'>
-							<strong>Date:</strong> {audio.date}
-						</li>
-						<li className='list-group-item'>
-							<strong>Time:</strong> {audio.time}
-						</li>
-						<li className='list-group-item'>
-							<strong>Location:</strong> {audio.location}
-						</li>
-						<li className='list-group-item'>
-							<strong>Conditions:</strong> {audio.conditions}
-						</li>
-						<li className='list-group-item'>
-							<strong>Temperature:</strong> {audio.temperature}
-						</li>
-						<li className='list-group-item'>
-							<strong>Wind:</strong> {audio.wind}
-						</li>
-						<li className='list-group-item'>
-							<strong>Recordist:</strong> {audio.recordist}
-						</li>
-						<li className='list-group-item'>
-							<strong>Tags:</strong>{" "}
-							{Array.isArray(audio.tags)
-								? audio.tags.join(", ")
-								: "No tags available"}
-						</li>
-					</ul>
-					<audio controls className='mt-3 w-100'>
-						<source src={audio.audioUrl} type='audio/mpeg' />
-						Your browser does not support the audio element.
-					</audio>
-				</div>
-			</div>
+			<h1>{audioDetails.title || "Untitled Audio"}</h1>
+			<ul className='list-group'>
+				<li className='list-group-item'>
+					<strong>Uploaded by:</strong> {audioDetails.user_name || "Unknown"}
+				</li>
+				<li className='list-group-item'>
+					<strong>Date:</strong> {audioDetails.date || "N/A"}
+				</li>
+				<li className='list-group-item'>
+					<strong>Tags:</strong>{" "}
+					{audioDetails.tags && audioDetails.tags.length > 0
+						? audioDetails.tags.join(", ")
+						: "No tags"}
+				</li>
+			</ul>
+			<audio controls className='mt-3'>
+				<source src={audioDetails.audio_path} type='audio/mpeg' />
+				Your browser does not support the audio element.
+			</audio>
 			<Link to='/records' className='btn btn-secondary mt-4'>
 				Back to Records
 			</Link>

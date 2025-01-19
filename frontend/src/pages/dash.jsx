@@ -51,6 +51,17 @@ const Dashboard = () => {
 		navigate("/auth");
 	};
 
+	// Manejar la eliminación de un audio
+	const handleDelete = async (id) => {
+		try {
+			await deleteAudioRecord(id);
+			setAudioRecords(audioRecords.filter((record) => record.id !== id));
+			setMessage("Audio record deleted successfully!");
+		} catch (err) {
+			setError("Failed to delete audio record");
+		}
+	};
+
 	return (
 		<Container className='mt-5'>
 			{/* Bienvenida y Logout */}

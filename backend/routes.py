@@ -312,29 +312,48 @@ def upload_file():
 @bp.route('/list-files', methods=['GET'])
 def list_files():
     try:
-        response = s3.list_objects_v2(Bucket=bucket_name)
-        files = []
+        files = AudioRecordV.query.join(User).add_columns(
+            AudioRecordV.id,
+            AudioRecordV.audio_path,
+            AudioRecordV.title,
+            AudioRecordV.tags,
+            User.username
+        ).all()
 
-        if 'Contents' in response:
-            for content in response['Contents']:
-                files.append(content['Key'])
+        result = []
+        for file in files:
+            # Garantizar que tags sea un array
+            tags = file.tags
+            if isinstance(tags, str):
+                try:
+                    tags = json.loads(tags)
+                except json.JSONDecodeError:
+                    tags = []
 
-        # Opcional: Agregar metadata desde la base de datos
-        metadata_records = AudioRecordV.query.all()
-        metadata = [
-            {
-                "id": record.id,
-                "user_id": record.user_id,
-                "file_name": record.audio_path,
-                "tags": record.tags
+            # Generar URL firmada para acceso temporal
+            presigned_url = s3.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_name, 'Key': file.audio_path},
+                ExpiresIn=3600  # La URL será válida por 1 hora
+            )
+
+            audio_data = {
+                "id": file.id,
+                "audio_path": presigned_url,  # Usar URL firmada
+                "title": file.title,
+                "tags": tags,
+                "user_name": file.username,
             }
-            for record in metadata_records
-        ]
+            result.append(audio_data)
 
-        return jsonify({"files": files, "metadata": metadata}), 200
-
+        return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+
+
 
 
 
@@ -462,27 +481,34 @@ def list_audio_records():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@bp.route('/list-audio-records/<int:user_id>', methods=['GET'])
-def list_audio_records_by_user(user_id):
-    """List audio records filtered by user_id"""
+@bp.route('/list-audio-records/<int:id>', methods=['GET'])
+def get_audio_record(id):
+    """Obtener detalles de un archivo de audio por ID"""
     try:
-        records = AudioRecordV.query.filter_by(user_id=user_id).all()
-        result = [
-            {
-                "id": record.id,
-                "user_id": record.user_id,
-                "original_audio_name": record.original_audio_name,
-                "audio_path": record.audio_path,
-                "title": record.title,
-                "date": record.date,
-                "tags": record.tags,
-                "created_at": record.created_at,
-            }
-            for record in records
-        ]
+        record = AudioRecordV.query.get(id)
+        if not record:
+            return jsonify({"error": "Audio record not found"}), 404
+
+        # Generar URL pública para el archivo
+        audio_url = f"https://{bucket_name}.s3.amazonaws.com/{record.audio_path}"
+
+        result = {
+            "id": record.id,
+            "title": record.title,
+            "audio_path": audio_url,
+            "user_name": record.user.username if record.user else "Unknown",
+            "tags": record.tags,
+            "date": record.date,
+            "created_at": record.created_at,
+        }
+
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+
 
 
 

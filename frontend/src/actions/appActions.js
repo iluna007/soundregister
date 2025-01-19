@@ -10,6 +10,13 @@ export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
 export const REGISTER_FAILURE = "REGISTER_FAILURE";
 
+export const FETCH_AUDIO_RECORDS_SUCCESS = "FETCH_AUDIO_RECORDS_SUCCESS";
+
+export const FETCH_ALL_AUDIO_RECORDS_SUCCESS =
+	"FETCH_ALL_AUDIO_RECORDS_SUCCESS";
+export const FETCH_ALL_AUDIO_RECORDS_FAILURE =
+	"FETCH_ALL_AUDIO_RECORDS_FAILURE";
+
 export const UPLOAD_AUDIO_SUCCESS = "UPLOAD_AUDIO_SUCCESS";
 export const UPLOAD_AUDIO_FAILURE = "UPLOAD_AUDIO_FAILURE";
 
@@ -126,6 +133,44 @@ export const fetchUserAudioRecords = async (userId) => {
     return data;
   } catch (error) {
     console.error("Error fetching user audio records:", error);
+    throw error;
+  }
+};
+
+// Acción para obtener todos los archivos de la API
+export const fetchAllAudioRecords = async () => {
+	try {
+		const { data } = await axios.get("http://localhost:5000/api/list-files");
+
+		// Validar que los datos sean un array
+		if (!Array.isArray(data)) {
+			throw new Error("Invalid data format: Expected an array");
+		}
+
+		// Garantizar que cada objeto tenga los campos necesarios y validar tags
+		const validatedData = data.map((record) => ({
+			...record,
+			tags: Array.isArray(record.tags)
+				? record.tags
+				: JSON.parse(record.tags || "[]"),
+		}));
+
+		return validatedData;
+	} catch (error) {
+		console.error("Error fetching audio records:", error);
+		throw error;
+	}
+};
+
+// Acción para obtener un detalle de audio por ID
+export const fetchAudioRecordById = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/list-audio-records/${id}`
+    );
+    return response.data; // Retorna los detalles
+  } catch (error) {
+    console.error("Error fetching audio record by ID:", error);
     throw error;
   }
 };

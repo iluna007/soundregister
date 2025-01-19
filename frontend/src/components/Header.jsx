@@ -17,23 +17,14 @@ const Header = () => {
 						<Nav.Link as={Link} to='/'>
 							Home
 						</Nav.Link>
-						<Nav.Link as={Link} to='/about'>
-							About
-						</Nav.Link>
-						<Nav.Link as={Link} to='/reacttest'>
-							Test
-						</Nav.Link>
-						<Nav.Link as={Link} to='/auth'>
-							SingIn/UP
-						</Nav.Link>
-						<Nav.Link as={Link} to='/dash'>
-							Dash
-						</Nav.Link>
 						<Nav.Link as={Link} to='/records'>
 							Records
 						</Nav.Link>
-						<Nav.Link as={Link} to='/flux-test'>
-							Flux Test
+						<Nav.Link as={Link} to='/about'>
+							About
+						</Nav.Link>
+						<Nav.Link as={Link} to='/auth'>
+							SingIn/UP
 						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>

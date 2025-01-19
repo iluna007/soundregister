@@ -9,6 +9,8 @@ import {
 	REGISTER_FAILURE,
 	UPLOAD_AUDIO_SUCCESS,
 	UPLOAD_AUDIO_FAILURE,
+	FETCH_ALL_AUDIO_RECORDS_SUCCESS,
+	FETCH_ALL_AUDIO_RECORDS_FAILURE,
 } from "../actions/appActions";
 
 class AppStore {
@@ -21,6 +23,8 @@ class AppStore {
 			authError: null, // Manejar errores de autenticación
 			registerError: null, // Para manejar errores de registro
 			registerMessage: null, // Para mostrar mensajes exitosos de registro
+			allAudioRecords: [], // Para almacenar todos los archivos
+			fetchAudioError: null, // Para manejar errores en la carga de archivos
 		};
 		this.listeners = new Set();
 	}
@@ -107,6 +111,22 @@ class AppStore {
 					...this.state,
 					uploadMessage: null,
 					uploadError: action.payload,
+				};
+				this.emitChange();
+				break;
+			case FETCH_ALL_AUDIO_RECORDS_SUCCESS:
+				this.state = {
+					...this.state,
+					allAudioRecords: action.payload,
+					fetchAudioError: null,
+				};
+				this.emitChange();
+				break;
+			case FETCH_ALL_AUDIO_RECORDS_FAILURE:
+				this.state = {
+					...this.state,
+					allAudioRecords: [],
+					fetchAudioError: action.payload,
 				};
 				this.emitChange();
 				break;

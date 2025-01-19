@@ -41,8 +41,9 @@ bucket_name = 'sound-register-gs-bucket-1'  # Cambia este valor por el nombre re
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
 
-
 # ----------------------    VIEWS    ----------------------
+
+# ----------------------   BACKEND   ----------------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -53,25 +54,36 @@ def users():
     users = User.query.all()
     return render_template("users.html", users=users)
 
-@app.route('/users/<int:user_id>/files', methods=['GET'])
+@app.route("/users/<int:user_id>/files", methods=["GET"])
 def user_files(user_id):
+    """Renderiza la página de archivos subidos por un usuario."""
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    files = AudioRecord.query.filter_by(user_id=user_id).all()
-    result = [
-        {
-            "id": file.id,
-            "original_audio_name": file.original_audio_name,
-            "audio_path": file.audio_path,
-            "date": file.date,
-            "time": file.time,
-        }
-        for file in files
-    ]
-    return jsonify(result), 200
+    user_files = AudioRecordV.query.filter_by(user_id=user_id).all()
+    return render_template("user_files.html", user=user, user_files=user_files)
 
+
+@app.route("/audios", methods=["GET", "POST"])
+def audios():
+    """Renderiza la página de audios con los datos de S3."""
+    try:
+        # Obtener la lista de archivos desde S3
+        response = s3.list_objects_v2(Bucket=bucket_name)
+        files = []
+
+        if 'Contents' in response:
+            for content in response['Contents']:
+                files.append(content['Key'])  # Obtener el nombre de cada archivo
+
+        # Renderizar el HTML con los archivos
+        return render_template("audios.html", files=files)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ----------------------                USERS                  ----------------------
 
 # ----------------------    CREATE, EDIT OR ELIMINATE USERS    ----------------------
 
@@ -222,21 +234,21 @@ def delete_user(user_id):
     db.session.commit()
     return jsonify({'message': 'User deleted'})
 
-# ----------------------
-# AUDIO ROUTES
-# ----------------------
+# ----------------------                AUDIOS                  ----------------------
 
-
-# Create a route to authenticate your users and return JWTs. The
-# create_access_token() function is used to actually generate the JWT.
-
-
+# ----------------------    UPLOAD, EDIT OR ELIMINATE AUDIOS    ----------------------
 
 
 @bp.route('/upload-files', methods=['POST'])
+@jwt_required()  # Verificar que el token es válido
 def upload_file():
-    """Subir archivo a S3 desde React"""
     try:
+        # Obtener el user_id desde el token JWT
+        user_id = get_jwt_identity()
+        if not user_id:
+            return jsonify({"error": "User not authenticated"}), 401
+
+        # Verificar si se proporciona un archivo
         if 'audio' not in request.files:
             return jsonify({"error": "No audio file provided"}), 400
 
@@ -244,48 +256,86 @@ def upload_file():
 
         if file.filename == '':
             return jsonify({"error": "No file selected"}), 400
-        
-        # Guardar el nombre original del archivo
-        original_filename = file.filename
 
-        # Generar un nombre único para el archivo
+        # Capturar metadata desde el formulario
+        metadata = request.form.to_dict()
+
+        # Limpieza de campos de metadata
+        metadata['date'] = metadata.get('date', '').strip()
+        metadata['title'] = metadata.get('title', '').strip()
+
+        # Asegurar que tags es un JSON válido
+        if 'tags' in metadata and isinstance(metadata['tags'], str):
+            try:
+                metadata['tags'] = json.loads(metadata['tags'])
+            except json.JSONDecodeError:
+                return jsonify({"error": "Invalid tags format. Must be a JSON string."}), 400
+
+        # Generar nombre único
         file_extension = file.filename.split('.')[-1].lower()
         unique_filename = f"{os.urandom(16).hex()}.{file_extension}"
 
-        # Subir el archivo a S3
+        # Subir a AWS S3
         s3.upload_fileobj(
             file,
             bucket_name,
             unique_filename,
-            ExtraArgs={'ContentType': file.content_type}  # Configurar el tipo de contenido
+            ExtraArgs={'ContentType': file.content_type}
         )
 
+        # Guardar en la base de datos
+        audio_record = AudioRecordV(
+            user_id=user_id,
+            original_audio_name=file.filename,
+            audio_path=unique_filename,
+            title=metadata.get('title'),
+            date=metadata.get('date'),
+            tags=metadata.get('tags'),
+        )
+        db.session.add(audio_record)
+        db.session.commit()
+
         return jsonify({
-            "message": f"File uploaded successfully as {unique_filename} with original name {original_filename}",
-            "original_filename": original_filename,  # Nombre original del archivo
-            "unique_filename": unique_filename       # Nombre generado único
+            "message": "File uploaded successfully",
+            "file_name": unique_filename,
+            "metadata": metadata
         }), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
+
+
+
 # listar elementos en aws bucket
 @bp.route('/list-files', methods=['GET'])
 def list_files():
-    """Listar archivos en el bucket de S3"""
     try:
         response = s3.list_objects_v2(Bucket=bucket_name)
         files = []
 
         if 'Contents' in response:
             for content in response['Contents']:
-                files.append(content['Key'])  # Solo nombres de archivo
+                files.append(content['Key'])
 
-        return jsonify({"files": files}), 200
+        # Opcional: Agregar metadata desde la base de datos
+        metadata_records = AudioRecordV.query.all()
+        metadata = [
+            {
+                "id": record.id,
+                "user_id": record.user_id,
+                "file_name": record.audio_path,
+                "tags": record.tags
+            }
+            for record in metadata_records
+        ]
+
+        return jsonify({"files": files, "metadata": metadata}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @bp.route('/delete/<filename>', methods=['POST'])
@@ -412,6 +462,28 @@ def list_audio_records():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@bp.route('/list-audio-records/<int:user_id>', methods=['GET'])
+def list_audio_records_by_user(user_id):
+    """List audio records filtered by user_id"""
+    try:
+        records = AudioRecordV.query.filter_by(user_id=user_id).all()
+        result = [
+            {
+                "id": record.id,
+                "user_id": record.user_id,
+                "original_audio_name": record.original_audio_name,
+                "audio_path": record.audio_path,
+                "title": record.title,
+                "date": record.date,
+                "tags": record.tags,
+                "created_at": record.created_at,
+            }
+            for record in records
+        ]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 
 # ------------------------------------------------------------
@@ -512,4 +584,33 @@ def user_audio_records(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    
+@app.route('/upload', methods=['POST'])
+def upload_audio():
+    if not current_user.is_authenticated:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    audio = request.files.get('audio')
+    if not audio:
+        return jsonify({"error": "No audio file provided"}), 400
+
+    # Guardar archivo y crear el registro
+    file_path = save_to_s3(audio)  # Función ficticia para guardar el archivo en S3
+    new_audio = AudioRecord(
+        user_id=current_user.id,
+        original_audio_name=audio.filename,
+        audio_path=file_path,
+        date=request.form.get('date'),
+        time=request.form.get('time'),
+        location=request.form.get('location'),
+        conditions=request.form.get('conditions'),
+        temperature=request.form.get('temperature'),
+        wind_speed=request.form.get('wind_speed'),
+        wind_direction=request.form.get('wind_direction'),
+        recordist=request.form.get('recordist'),
+        notes=request.form.get('notes'),
+        tags=request.form.get('tags'),
+    )
+    db.session.add(new_audio)
+    db.session.commit()
+    return jsonify({"message": "File uploaded successfully!"}), 201
+

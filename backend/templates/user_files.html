@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Files</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Dark Mode CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dark-mode.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Files Uploaded by {{ user.username }}</h1>
+
+        <!-- Tabla de archivos -->
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Original Name</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Tags</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in user_files %}
+                    <tr>
+                        <td>{{ file.id }}</td>
+                        <td>{{ file.original_audio_name }}</td>
+                        <td>{{ file.title }}</td>
+                        <td>{{ file.date }}</td>
+                        <td>{{ file.tags }}</td>
+                        <td class="d-flex gap-2">
+                            <!-- Descargar archivo -->
+                            <a href="/api/download/{{ file.audio_path }}" target="_blank" class="btn btn-sm btn-primary">Download</a>
+                            <!-- Eliminar archivo -->
+                            <form method="POST" action="/api/delete/{{ file.audio_path }}" onsubmit="return confirm('Are you sure you want to delete this file?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No files found for this user.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón para regresar a la lista de usuarios -->
+        <a href="/users" class="btn btn-secondary mt-4 d-block text-center">Back to Users</a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

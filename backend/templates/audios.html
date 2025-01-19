@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Files</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Dark Mode CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dark-mode.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Uploaded Files</h1>
+
+        <!-- Alert Messages -->
+        <div id="alert-container" class="mb-3"></div>
+
+        <!-- Upload Form -->
+        <form id="upload-form" class="mb-4">
+            <div class="mb-3">
+                <label for="audio" class="form-label">Upload Audio File</label>
+                <input type="file" class="form-control" id="audio" name="audio" accept="audio/*" required>
+            </div>
+            <button type="submit" class="btn btn-success">Upload</button>
+        </form>
+
+        <!-- Files Table -->
+        <div class="table-responsive">
+            <table id="files-table" class="table table-dark table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Original Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if files %}
+                        {% for file in files %}
+                        <tr data-filename="{{ file }}">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ file }}</td>
+                            <td>
+                                <a href="/api/download/{{ file }}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+                                <button class="btn btn-danger btn-sm delete-btn" data-filename="{{ file }}">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr id="no-files-row">
+                            <td colspan="3" class="text-center">No files found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="/" class="btn btn-secondary mt-4 d-block text-center">Back to Home</a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper: Show alert messages
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+
+        // Subir archivo
+        document.querySelector('#upload-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/api/upload-files', { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (response.ok) {
+                    const newRow = document.createElement('tr');
+                    newRow.dataset.filename = result.unique_filename;
+                    newRow.innerHTML = `
+                        <td>#</td>
+                        <td>${result.original_filename}</td>
+                        <td>
+                            <a href="/api/download/${result.unique_filename}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+                            <button class="btn btn-danger btn-sm delete-btn" data-filename="${result.unique_filename}">Delete</button>
+                        </td>
+                    `;
+                    const noFilesRow = document.querySelector('#no-files-row');
+                    if (noFilesRow) noFilesRow.remove();
+
+                    const tableBody = document.querySelector('#files-table tbody');
+                    tableBody.appendChild(newRow);
+
+                    updateRowNumbers();
+                    attachDeleteEvent(newRow);
+
+                    showAlert('success', result.message);
+                } else {
+                    showAlert('danger', result.error || 'Failed to upload file.');
+                }
+            } catch (error) {
+                showAlert('danger', 'An error occurred while uploading the file.');
+            }
+        });
+
+        // Actualizar números de fila
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll('#files-table tbody tr');
+            rows.forEach((row, index) => {
+                row.querySelector('td:first-child').textContent = index + 1;
+            });
+        }
+
+        // Añadir eventos de eliminación dinámicamente
+        function attachDeleteEvent(row) {
+            const deleteButton = row.querySelector('.delete-btn');
+            deleteButton.addEventListener('click', async function () {
+                const filename = this.dataset.filename;
+                const confirmed = confirm(`Are you sure you want to delete "${filename}"?`);
+                if (!confirmed) return;
+
+                try {
+                    const response = await fetch(`/api/delete/${filename}`, { method: 'POST' });
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        row.remove();
+                        showAlert('success', result.message);
+
+                        if (!document.querySelectorAll('#files-table tbody tr').length) {
+                            const noFilesRow = document.createElement('tr');
+                            noFilesRow.id = 'no-files-row';
+                            noFilesRow.innerHTML = `<td colspan="3" class="text-center">No files found.</td>`;
+                            document.querySelector('#files-table tbody').appendChild(noFilesRow);
+                        }
+                    } else {
+                        showAlert('danger', result.error || 'Failed to delete file.');
+                    }
+                } catch (error) {
+                    showAlert('danger', 'An error occurred while deleting the file.');
+                }
+            });
+        }
+
+        // Añadir eventos a las filas iniciales
+        document.querySelectorAll('#files-table tbody tr').forEach(row => attachDeleteEvent(row));
+    </script>
+</body>
+</html>

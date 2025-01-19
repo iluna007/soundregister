@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Alert } from "react-bootstrap";
+import { Container, Table, Button, Alert, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import appStore from "../store/appStore";
-import { fetchAudioRecords, deleteAudioRecord } from "../actions/appActions";
-import AudioUp from "../components/AudioUp";
+import {
+	fetchUserAudioRecords,
+	deleteAudioRecord,
+} from "../actions/appActions";
+import AudioUpTest from "../components/AudioUpTest";
 
 const Dashboard = () => {
 	const { user } = appStore.getState();
@@ -15,32 +18,37 @@ const Dashboard = () => {
 
 	// Cargar registros de audio al montar
 	useEffect(() => {
-		const loadAudioRecords = async () => {
+		const loadUserAudioRecords = async () => {
 			try {
-				const records = await fetchAudioRecords();
+				if (!user) {
+					setError("User not authenticated");
+					return;
+				}
+
+				const records = await fetchUserAudioRecords(user.id);
 				setAudioRecords(records);
 			} catch (err) {
 				setError("Failed to load audio records");
 			}
 		};
-		loadAudioRecords();
-	}, []);
+		loadUserAudioRecords();
+	}, [user]);
+
+	// Manejar la subida exitosa
+	const handleUploadSuccess = async () => {
+		try {
+			const records = await fetchUserAudioRecords(user.id);
+			setAudioRecords(records);
+			setMessage("Audio uploaded successfully!");
+		} catch (err) {
+			setError("Failed to reload audio records");
+		}
+	};
 
 	// Manejar el cierre de sesión
 	const handleLogout = () => {
 		appStore.handleAction({ type: "RESET_DATA" });
 		navigate("/auth");
-	};
-
-	// Manejar la eliminación de un audio
-	const handleDelete = async (id) => {
-		try {
-			await deleteAudioRecord(id);
-			setAudioRecords(audioRecords.filter((record) => record.id !== id));
-			setMessage("Audio record deleted successfully!");
-		} catch (err) {
-			setError("Failed to delete audio record");
-		}
 	};
 
 	return (
@@ -53,8 +61,11 @@ const Dashboard = () => {
 			</Button>
 
 			{/* Formulario para subir audios */}
-			<h2 className='mt-4'>Upload Audio</h2>
-			<AudioUp />
+			<h2 className='mt-4'>Upload Audio!</h2>
+			<AudioUpTest
+				onUploadSuccess={handleUploadSuccess}
+				setMessage={setMessage}
+			/>
 
 			{/* Mensajes */}
 			{message && <Alert variant='success'>{message}</Alert>}
@@ -66,7 +77,7 @@ const Dashboard = () => {
 				<thead>
 					<tr>
 						<th>#</th>
-						<th>Original Name</th>
+						<th>Title</th>
 						<th>Date</th>
 						<th>Actions</th>
 					</tr>
@@ -75,9 +86,16 @@ const Dashboard = () => {
 					{audioRecords.map((record, index) => (
 						<tr key={record.id}>
 							<td>{index + 1}</td>
-							<td>{record.original_audio_name}</td>
+							<td>{record.title}</td>
 							<td>{record.date}</td>
 							<td>
+								<Button
+									variant='info'
+									size='sm'
+									onClick={() => handleDownload(record.audio_path)}
+								>
+									Download
+								</Button>
 								<Button
 									variant='danger'
 									size='sm'
@@ -85,7 +103,6 @@ const Dashboard = () => {
 								>
 									Delete
 								</Button>
-								{/* Aquí puedes agregar el botón de editar si es necesario */}
 							</td>
 						</tr>
 					))}

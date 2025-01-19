@@ -2,8 +2,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // Importa el proveedor de Google OAuth
 import { AppProvider } from "./AppContext"; // Contexto global
-import "./index.css";
 import App from "./App.jsx";
+import './main.css';  // Asegúrate de que la ruta sea correcta
+
 
 const CLIENT_ID =
 	"713442684422-03urpr3nhdcbq573hihilqn09s3ih58g.apps.googleusercontent.com";

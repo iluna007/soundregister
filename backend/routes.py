@@ -481,7 +481,7 @@ def list_audio_records():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@bp.route('/list-audio-records/<int:id>', methods=['GET'])
+@bp.route('/audio-record/<int:id>', methods=['GET'])
 def get_audio_record(id):
     """Obtener detalles de un archivo de audio por ID"""
     try:
@@ -501,6 +501,37 @@ def get_audio_record(id):
             "date": record.date,
             "created_at": record.created_at,
         }
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@bp.route('/list-audio-records/<int:user_id>', methods=['GET'])
+def list_audio_records_by_user(user_id):
+    try:
+        records = AudioRecordV.query.filter_by(user_id=user_id).all()
+        result = []
+        for record in records:
+            # Asegurarse de que los tags son un array
+            if isinstance(record.tags, str):
+                try:
+                    tags = json.loads(record.tags)
+                except json.JSONDecodeError:
+                    tags = []  # Si no se puede parsear, asignar un array vacío
+            else:
+                tags = record.tags if isinstance(record.tags, list) else []
+
+            audio_data = {
+                "id": record.id,
+                "user_id": record.user_id,
+                "original_audio_name": record.original_audio_name,
+                "audio_path": record.audio_path,
+                "title": record.title,
+                "date": record.date,
+                "tags": tags,
+                "created_at": record.created_at,
+            }
+            result.append(audio_data)
 
         return jsonify(result), 200
     except Exception as e:

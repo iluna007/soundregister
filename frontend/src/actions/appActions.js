@@ -127,14 +127,16 @@ export const uploadAudio = (formData) => {
 };
 
 // Obtener registros de audio filtrados por usuario
-export const fetchUserAudioRecords = async (userId) => {
-  try {
-    const { data } = await axios.get(`http://localhost:5000/api/list-audio-records/${userId}`);
-    return data;
-  } catch (error) {
-    console.error("Error fetching user audio records:", error);
-    throw error;
-  }
+export const fetchUserAudioRecords = async (user_id) => {
+	try {
+		const { data } = await axios.get(
+			`http://localhost:5000/api/list-audio-records/${user_id}`
+		);
+		return data;
+	} catch (error) {
+		console.error("Error fetching user audio records:", error);
+		throw new Error("Failed to fetch audio records.");
+	}
 };
 
 // Acción para obtener todos los archivos de la API
@@ -162,15 +164,5 @@ export const fetchAllAudioRecords = async () => {
 	}
 };
 
-// Acción para obtener un detalle de audio por ID
-export const fetchAudioRecordById = async (id) => {
-  try {
-    const response = await axios.get(
-      `http://localhost:5000/api/list-audio-records/${id}`
-    );
-    return response.data; // Retorna los detalles
-  } catch (error) {
-    console.error("Error fetching audio record by ID:", error);
-    throw error;
-  }
-};
+
+

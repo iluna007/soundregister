@@ -671,3 +671,25 @@ def upload_audio():
     db.session.commit()
     return jsonify({"message": "File uploaded successfully!"}), 201
 
+@bp.route('/google-login', methods=['POST'])
+def google_login():
+    data = request.json
+    email = data.get('email')
+    name = data.get('name')
+
+    if not email or not name:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Verificar si el usuario ya existe
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Crear nuevo usuario
+        user = User(username=name, email=email)
+        db.session.add(user)
+        db.session.commit()
+
+    # Generar un token de sesión
+    access_token = create_access_token(identity=user.id)
+
+    return jsonify({"user": {"id": user.id, "username": user.username, "email": user.email}, "token": access_token}), 200
+

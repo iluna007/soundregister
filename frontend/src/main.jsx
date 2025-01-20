@@ -7,7 +7,7 @@ import './main.css';  // Asegúrate de que la ruta sea correcta
 
 
 const CLIENT_ID =
-	"713442684422-03urpr3nhdcbq573hihilqn09s3ih58g.apps.googleusercontent.com";
+	"32564316129-c0m0sa303p4a7p7b9joi2ihpd4vbn19a.apps.googleusercontent.com";
 // Reemplaza "TU_CLIENT_ID_DE_GOOGLE" con tu Client ID de Google
 createRoot(document.getElementById("root")).render(
 	<StrictMode>

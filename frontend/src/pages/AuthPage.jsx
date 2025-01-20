@@ -3,6 +3,7 @@ import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../actions/appActions";
 import appStore from "../store/appStore";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const AuthPage = () => {
 	const navigate = useNavigate();
@@ -16,27 +17,32 @@ const AuthPage = () => {
 
 	const { authError, registerError, registerMessage } = appStore.getState();
 
-	// Limpiar mensaje al montar el componente
+	// Clear messages on component mount
 	useEffect(() => {
-		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje al montar
+		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" });
+		appStore.handleAction({ type: "CLEAR_AUTH_ERROR" });
 	}, []);
 
-	// Escuchar cambios en el Store para redirigir al Dashboard o manejar el registro exitoso
+	// Automatically clear messages after a few seconds
+	useEffect(() => {
+		let timeout;
+		if (registerMessage || authError || registerError) {
+			timeout = setTimeout(() => {
+				appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" });
+				appStore.handleAction({ type: "CLEAR_AUTH_ERROR" });
+			}, 3000); // Clear messages after 3 seconds
+		}
+		return () => clearTimeout(timeout); // Cleanup timeout
+	}, [registerMessage, authError, registerError]);
+
+	// Handle store changes and navigation
 	useEffect(() => {
 		const handleStoreChange = () => {
-			const { user, registerMessage } = appStore.getState();
+			const { user } = appStore.getState();
 
-			// Redirigir al Dashboard tras login exitoso
+			// Redirect to dashboard if logged in
 			if (user) {
 				navigate("/dash");
-			}
-
-			// Cambiar al modo Sign In tras registro exitoso
-			if (registerMessage) {
-				setTimeout(() => {
-					setIsSignUp(false); // Cambia al modo Sign In
-					appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje de registro
-				}, 2000); // Retraso de 2 segundos para mostrar el mensaje
 			}
 		};
 
@@ -47,7 +53,8 @@ const AuthPage = () => {
 	const handleToggle = () => {
 		setIsSignUp(!isSignUp);
 		setFormData({ username: "", email: "", password: "", confirmPassword: "" });
-		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" }); // Limpia el mensaje al alternar entre modos
+		appStore.handleAction({ type: "CLEAR_REGISTER_MESSAGE" });
+		appStore.handleAction({ type: "CLEAR_AUTH_ERROR" });
 	};
 
 	const handleChange = (e) => {
@@ -149,6 +156,13 @@ const AuthPage = () => {
 								: "Don't have an account? Sign Up"}
 						</Button>
 					</div>
+				</Col>
+				<Col></Col>
+			</Row>
+			<Row>
+				<Col></Col>
+				<Col>
+					<GoogleLoginButton />
 				</Col>
 				<Col></Col>
 			</Row>

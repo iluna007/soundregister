@@ -57,9 +57,19 @@ class AppStore {
 				this.emitChange();
 				break;
 			case RESET_DATA:
-				this.state = { ...this.state, data: null };
+				this.state = {
+					...this.state,
+					data: null,
+					user: null, // Clear user data
+					token: null, // Clear token
+					authError: null, // Reset auth error
+					registerMessage: null, // Clear messages
+					registerError: null,
+					allAudioRecords: [], // Clear any fetched records
+				};
 				this.emitChange();
 				break;
+
 			case FETCH_PING_SUCCESS:
 				this.state = { ...this.state, pingMessage: action.payload };
 				this.emitChange();

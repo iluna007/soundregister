@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Alert, Modal } from "react-bootstrap";
+import { Container, Table, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import appStore from "../store/appStore";
 import {
 	fetchUserAudioRecords,
 	deleteAudioRecord,
+	logoutUser
 } from "../actions/appActions";
 import AudioUpTest from "../components/AudioUpTest";
 
@@ -16,7 +17,7 @@ const Dashboard = () => {
 	const [message, setMessage] = useState(null);
 	const [error, setError] = useState(null);
 
-	// Cargar registros de audio al montar
+	// Load user audio records on component mount
 	useEffect(() => {
 		const loadUserAudioRecords = async () => {
 			try {
@@ -34,7 +35,7 @@ const Dashboard = () => {
 		loadUserAudioRecords();
 	}, [user]);
 
-	// Manejar la subida exitosa
+	// Handle successful audio upload
 	const handleUploadSuccess = async () => {
 		try {
 			const records = await fetchUserAudioRecords(user.id);
@@ -45,13 +46,13 @@ const Dashboard = () => {
 		}
 	};
 
-	// Manejar el cierre de sesión
+	// Handle sign out
 	const handleLogout = () => {
-		appStore.handleAction({ type: "RESET_DATA" });
+		logoutUser()(appStore.handleAction.bind(appStore)); // Dispatch logout action
 		navigate("/auth");
 	};
 
-	// Manejar la eliminación de un audio
+	// Handle deleting an audio record
 	const handleDelete = async (id) => {
 		try {
 			await deleteAudioRecord(id);
@@ -64,25 +65,25 @@ const Dashboard = () => {
 
 	return (
 		<Container className='mt-5'>
-			{/* Bienvenida y Logout */}
+			{/* Welcome Section */}
 			<h1>Welcome to your Dashboard</h1>
 			{user && <p>Hello, {user.username}!</p>}
 			<Button variant='danger' onClick={handleLogout}>
-				Logout
+				Sign Out
 			</Button>
 
-			{/* Formulario para subir audios */}
-			<h2 className='mt-4'>Upload Audio!</h2>
+			{/* Upload Section */}
+			<h2 className='mt-4'>Upload Audio</h2>
 			<AudioUpTest
 				onUploadSuccess={handleUploadSuccess}
 				setMessage={setMessage}
 			/>
 
-			{/* Mensajes */}
+			{/* Messages Section */}
 			{message && <Alert variant='success'>{message}</Alert>}
 			{error && <Alert variant='danger'>{error}</Alert>}
 
-			{/* Tabla para listar audios */}
+			{/* Audio Records Table */}
 			<h2 className='mt-4'>Your Audio Records</h2>
 			<Table striped bordered hover>
 				<thead>

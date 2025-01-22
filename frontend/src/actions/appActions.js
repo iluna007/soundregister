@@ -62,6 +62,24 @@ export const loginUser = (email, password) => {
 		}
 	};
 };
+// Logout function
+export const logoutUser = () => {
+	return (dispatch) => {
+		try {
+			// Clear any stored session data
+			localStorage.removeItem("userToken");
+			sessionStorage.removeItem("userSession");
+
+			// Dispatch RESET_DATA to clear global state
+			dispatch({ type: RESET_DATA });
+
+			console.log("User logged out successfully.");
+		} catch (error) {
+			console.error("Error during logout:", error);
+		}
+	};
+};
+
 
 // Función para registrar un nuevo usuario
 export const registerUser = (username, email, password) => {

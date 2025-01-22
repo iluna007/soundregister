@@ -92,5 +92,15 @@ cloudinary.config(
 # Permitir CORS para todas las rutas y orígenes
 CORS(app)
 
+from flasgger import Swagger
+
+# Configuración de Swagger para la documentación de la API
+app.config['SWAGGER'] = {
+    'title': 'SoundRegister API',
+    'uiversion': 3
+}
+
+# Inicializar Swagger
+swagger = Swagger(app)
 
 

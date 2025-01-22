@@ -147,6 +147,59 @@ def ping():
 
 @bp.route('/users', methods=['POST'])
 def create_user():
+    """
+    Create a new user
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: "john_doe"
+              description: "The username of the new user"
+            email:
+              type: string
+              example: "john.doe@example.com"
+              description: "The email address of the new user"
+            password:
+              type: string
+              example: "password123"
+              description: "The password for the new user"
+    responses:
+      201:
+        description: User created successfully
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            message:
+              type: string
+              example: "User created successfully!"
+      400:
+        description: Missing required fields
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Missing required fields"
+      409:
+        description: Username or email already exists
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "This email is already registered"
+    """
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
@@ -175,10 +228,34 @@ def create_user():
     return jsonify({"id": user.id, "message": "User created successfully!"}), 201
 
 
-
-    
 @bp.route('/users', methods=['GET'])
 def get_all_users():
+    """
+    Get all users
+    ---
+    tags:
+      - Users
+    responses:
+      200:
+        description: List of all users
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              username:
+                type: string
+                example: "john_doe"
+              email:
+                type: string
+                example: "john.doe@example.com"
+              role:
+                type: string
+                example: "admin"
+    """
     users = User.query.all()
     return jsonify([
         {
@@ -190,10 +267,63 @@ def get_all_users():
         for user in users
     ])
 
+    
+# @bp.route('/users', methods=['GET'])
+# def get_all_users():
+
+#     users = User.query.all()
+#     return jsonify([
+#         {
+#             'id': user.id,
+#             'username': user.username,
+#             'email': user.email,
+#             'role': user.role
+#         }
+#         for user in users
+#     ])
+
 
 
 @bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
+    """
+    Get user details by ID
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user to retrieve
+    responses:
+      200:
+        description: User details
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: "john_doe"
+            email:
+              type: string
+              example: "john.doe@example.com"
+            role:
+              type: string
+              example: "admin"
+      404:
+        description: User not found
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "User not found"
+    """
     user = User.query.get(user_id)
     if user is None:
         return jsonify({'message': 'User not found'}), 404
@@ -204,8 +334,73 @@ def get_user(user_id):
         'role': user.role
     })
 
-@bp.route('/users/<int:user_id>', methods=['PUT'])
+# @bp.route('/users/<int:user_id>', methods=['PUT'])
+# def update_user(user_id):
+#     data = request.get_json()
+#     user = User.query.get(user_id)
+#     if user is None:
+#         return jsonify({'message': 'User not found'}), 404
+
+#     # Actualizar solo los campos presentes en la solicitud
+#     if 'username' in data:
+#         user.username = data['username']
+#     if 'email' in data:
+#         user.email = data['email']
+#     if 'role' in data:
+#         user.role = data['role']
+#     if 'password_hash' in data:
+#         user.password_hash = data['password_hash']
+
+#     db.session.commit()
+#     return jsonify({'message': 'User updated'})
 def update_user(user_id):
+    """
+    Update user details by ID
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user to update
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: "john_doe_updated"
+            email:
+              type: string
+              example: "john.doe.updated@example.com"
+            role:
+              type: string
+              example: "user"
+            password_hash:
+              type: string
+              example: "hashed_password"
+    responses:
+      200:
+        description: User updated successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "User updated"
+      404:
+        description: User not found
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "User not found"
+    """
     data = request.get_json()
     user = User.query.get(user_id)
     if user is None:
@@ -227,12 +422,50 @@ def update_user(user_id):
 
 @bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
+    """
+    Delete a user by ID
+    ---
+    tags:
+      - Users
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user to delete
+    responses:
+      200:
+        description: User deleted successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "User deleted"
+      404:
+        description: User not found
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "User not found"
+    """
     user = User.query.get(user_id)
     if user is None:
         return jsonify({'message': 'User not found'}), 404
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted'})
+
+# @bp.route('/users/<int:user_id>', methods=['DELETE'])
+# def delete_user(user_id):
+#     user = User.query.get(user_id)
+#     if user is None:
+#         return jsonify({'message': 'User not found'}), 404
+#     db.session.delete(user)
+#     db.session.commit()
+#     return jsonify({'message': 'User deleted'})
 
 # ----------------------                AUDIOS                  ----------------------
 
@@ -242,6 +475,88 @@ def delete_user(user_id):
 @bp.route('/upload-files', methods=['POST'])
 @jwt_required()  # Verificar que el token es válido
 def upload_file():
+    """
+    Upload an audio file
+    ---
+    tags:
+      - Files
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: audio
+        in: formData
+        type: file
+        required: true
+        description: The audio file to upload
+      - name: title
+        in: formData
+        type: string
+        required: false
+        description: The title of the audio file
+        example: "Nature Sounds"
+      - name: date
+        in: formData
+        type: string
+        required: false
+        description: The date of the recording (optional)
+        example: "2025-01-22"
+      - name: tags
+        in: formData
+        type: string
+        required: false
+        description: JSON string containing tags for the file
+        example: '["nature", "forest", "birds"]'
+    responses:
+      201:
+        description: File uploaded successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "File uploaded successfully"
+            file_name:
+              type: string
+              example: "d41d8cd98f00b204e9800998ecf8427e.mp3"
+            metadata:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Nature Sounds"
+                date:
+                  type: string
+                  example: "2025-01-22"
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  example: ["nature", "forest", "birds"]
+      400:
+        description: Bad request (missing or invalid fields)
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "No audio file provided"
+      401:
+        description: Unauthorized (invalid or missing token)
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "User not authenticated"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
     try:
         # Obtener el user_id desde el token JWT
         user_id = get_jwt_identity()
@@ -311,6 +626,50 @@ def upload_file():
 # listar elementos en aws bucket
 @bp.route('/list-files', methods=['GET'])
 def list_files():
+    """
+    List all audio files
+    ---
+    tags:
+      - Files
+    responses:
+      200:
+        description: List of audio files with metadata
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+                description: "ID of the audio file"
+              audio_path:
+                type: string
+                example: "https://bucket-name.s3.amazonaws.com/unique_file.mp3"
+                description: "Presigned URL for temporary access to the file"
+              title:
+                type: string
+                example: "Nature Sounds"
+                description: "Title of the audio file"
+              tags:
+                type: array
+                items:
+                  type: string
+                example: ["nature", "forest", "birds"]
+                description: "Tags associated with the audio file"
+              user_name:
+                type: string
+                example: "john_doe"
+                description: "Username of the file owner"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
     try:
         files = AudioRecordV.query.join(User).add_columns(
             AudioRecordV.id,
@@ -359,7 +718,37 @@ def list_files():
 
 @bp.route('/delete/<filename>', methods=['POST'])
 def delete_file(filename):
-    """Eliminar archivo del bucket de S3"""
+    """
+    Delete a file from the S3 bucket
+    ---
+    tags:
+      - Files
+    parameters:
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the file to delete from the S3 bucket
+        example: "unique_file.mp3"
+    responses:
+      200:
+        description: File deleted successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "File unique_file.mp3 deleted successfully"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Error deleting file: File not found"
+    """
+    
     try:
         # Eliminar el archivo del bucket de S3
         s3.delete_object(Bucket=bucket_name, Key=filename)
@@ -373,7 +762,35 @@ def delete_file(filename):
 
 @bp.route('/download/<filename>', methods=['GET'])
 def download_file(filename):
-    """Generar una URL temporal para descargar/visualizar el archivo desde S3"""
+    """
+    Generate a presigned URL to download or view a file from S3
+    ---
+    tags:
+      - Files
+    parameters:
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The name of the file to generate a presigned URL for
+        example: "unique_file.mp3"
+    responses:
+      302:
+        description: Redirect to the presigned URL for the file
+        headers:
+          Location:
+            description: The presigned URL for the file
+            type: string
+            example: "https://bucket-name.s3.amazonaws.com/unique_file.mp3?X-Amz-Security-Token=..."
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Error generating presigned URL"
+    """   
     try:
         file_url = s3.generate_presigned_url(
             'get_object',
@@ -391,7 +808,67 @@ def download_file(filename):
 
 @bp.route('/save-audio-record', methods=['POST'])
 def save_audio_record():
-    """Guardar información del registro de audio"""
+    """
+    Save an audio record
+    ---
+    tags:
+      - Audio Records
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            original_audio_name:
+              type: string
+              example: "recording.mp3"
+              description: The original name of the audio file
+            audio_path:
+              type: string
+              example: "audio/unique_file.mp3"
+              description: The path to the audio file
+            image_path:
+              type: string
+              example: "images/thumbnail.jpg"
+              description: (Optional) Path to the associated image
+            date:
+              type: string
+              example: "2025-01-22"
+              description: (Optional) Date of the recording
+            tags:
+              type: array
+              items:
+                type: string
+              example: ["nature", "birds", "morning"]
+              description: (Optional) Tags associated with the audio file
+    responses:
+      201:
+        description: Audio record saved successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Audio record saved successfully!"
+      400:
+        description: Missing required fields
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Missing required field: original_audio_name"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
+
     try:
         data = request.json  # Obtener los datos del cliente (React)
 
@@ -429,7 +906,44 @@ def save_audio_record():
 
 @bp.route('/delete-audio-record/<int:record_id>', methods=['POST'])
 def delete_audio_record(record_id):
-    """Eliminar un registro de audio y el archivo asociado en S3"""
+    """
+    Delete an audio record
+    ---
+    tags:
+      - Audio Records
+    parameters:
+      - name: record_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the audio record to delete
+    responses:
+      200:
+        description: Audio record deleted successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Audio record and associated file deleted successfully!"
+      404:
+        description: Audio record not found
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Audio record not found"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Error deleting file in S3: File not found"
+    """
+
     try:
         # Buscar el registro en la base de datos
         record = AudioRecordV.query.get(record_id)
@@ -455,7 +969,45 @@ def delete_audio_record(record_id):
 
 @bp.route('/list-audio-records', methods=['GET'])
 def list_audio_records():
-    """Listar todos los registros de audio"""
+    """
+    List all audio records
+    ---
+    tags:
+      - Audio Records
+    responses:
+      200:
+        description: List of audio records with metadata
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              original_audio_name:
+                type: string
+                example: "recording.mp3"
+              audio_path:
+                type: string
+                example: "audio/unique_file.mp3"
+              date:
+                type: string
+                example: "2025-01-22"
+              tags:
+                type: array
+                items:
+                  type: string
+                example: ["nature", "birds"]
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
     try:
         records = AudioRecordV.query.all()
         result = [
@@ -483,7 +1035,64 @@ def list_audio_records():
 
 @bp.route('/audio-record/<int:id>', methods=['GET'])
 def get_audio_record(id):
-    """Obtener detalles de un archivo de audio por ID"""
+    """
+    Get details of an audio record by ID
+    ---
+    tags:
+      - Audio Records
+    parameters:
+      - name: id
+        in: path
+        type: integer
+        required: true
+        description: ID of the audio record to retrieve
+        example: 1
+    responses:
+      200:
+        description: Audio record details
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            title:
+              type: string
+              example: "Nature Sounds"
+            audio_path:
+              type: string
+              example: "https://bucket-name.s3.amazonaws.com/unique_file.mp3"
+            user_name:
+              type: string
+              example: "john_doe"
+            tags:
+              type: array
+              items:
+                type: string
+              example: ["nature", "birds", "morning"]
+            date:
+              type: string
+              example: "2025-01-22"
+            created_at:
+              type: string
+              example: "2025-01-20T10:30:00"
+      404:
+        description: Audio record not found
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Audio record not found"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
     try:
         record = AudioRecordV.query.get(id)
         if not record:
@@ -508,6 +1117,61 @@ def get_audio_record(id):
 
 @bp.route('/list-audio-records/<int:user_id>', methods=['GET'])
 def list_audio_records_by_user(user_id):
+    """
+    List all audio records for a specific user
+    ---
+    tags:
+      - Audio Records
+    parameters:
+      - name: user_id
+        in: path
+        type: integer
+        required: true
+        description: ID of the user whose audio records to retrieve
+        example: 123
+    responses:
+      200:
+        description: List of audio records for the user
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              user_id:
+                type: integer
+                example: 123
+              original_audio_name:
+                type: string
+                example: "recording.mp3"
+              audio_path:
+                type: string
+                example: "audio/unique_file.mp3"
+              title:
+                type: string
+                example: "Rainforest Sounds"
+              date:
+                type: string
+                example: "2025-01-22"
+              tags:
+                type: array
+                items:
+                  type: string
+                example: ["nature", "birds", "rainforest"]
+              created_at:
+                type: string
+                example: "2025-01-20T10:30:00"
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "An unexpected error occurred"
+    """
     try:
         records = AudioRecordV.query.filter_by(user_id=user_id).all()
         result = []

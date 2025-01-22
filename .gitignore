@@ -1,5 +1,6 @@
 node_modules
 .env
+
 dist
 /vflask_react/
 # Ignorar archivos de caché de Python
@@ -7,5 +8,5 @@ dist
 __pycache__/
 backend/__pycache__/__init__.cpython-311.pyc
 backend/__pycache__/*.cpython-311.pyc
-
+env_soundregister
         

@@ -36,7 +36,7 @@ export const resetData = () => ({
 
 //para despliegue sustituir localhost por la ip de la maquina
 //const BACKEND_URL = "http://localhost:5000";
-const BACKEND_URL = "http://134.209.18.108:5000";
+const BACKEND_URL = "http://138.68.165.159:5000";
 
 
 // Test ping pong conexión con el servidor
@@ -55,7 +55,7 @@ export const fetchPing = () => {
 export const loginUser = (email, password) => {
 	return async (dispatch) => {
 		try {
-			const { data } = await axios.post("${BACKEND_URL}/login", {
+			const { data } = await axios.post(`${BACKEND_URL}/login`, {
 				email,
 				password,
 			});
@@ -91,7 +91,7 @@ export const logoutUser = () => {
 export const registerUser = (username, email, password) => {
 	return async (dispatch) => {
 		try {
-			const { data } = await axios.post("${BACKEND_URL}/api/users", {
+			const { data } = await axios.post(`${BACKEND_URL}/api/users`, {
 				username,
 				email,
 				password,
@@ -123,7 +123,7 @@ export const fetchAudioRecords = async () => {
 export const deleteAudioRecord = async (id) => {
 	try {
 		const { data } = await axios.post(
-			"${BACKEND_URL}api/delete-audio-record/${id}"
+			`${BACKEND_URL}api/delete-audio-record/${id}`
 		);
 		return data;
 	} catch (error) {
@@ -137,7 +137,7 @@ export const uploadAudio = (formData) => {
 	return async (dispatch) => {
 		try {
 			const { data } = await axios.post(
-				"${BACKEND_URL}/api/upload-files",
+				`${BACKEND_URL}/api/upload-files`,
 				formData
 			);
 			dispatch({ type: UPLOAD_AUDIO_SUCCESS, payload: data.message });
@@ -166,7 +166,7 @@ export const fetchUserAudioRecords = async (user_id) => {
 // Acción para obtener todos los archivos de la API
 export const fetchAllAudioRecords = async () => {
 	try {
-		const { data } = await axios.get("${BACKEND_URL}/api/list-files");
+		const { data } = await axios.get(`${BACKEND_URL}/api/list-files`);
 
 		// Validar que los datos sean un array
 		if (!Array.isArray(data)) {

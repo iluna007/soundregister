@@ -2,10 +2,11 @@
 FROM python:3.11-slim
 
 # Establece el directorio de trabajo
-# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /backend
 
-# Copia el archivo de requerimientos y lo instala
+# Instalar netcat para usar el comando nc en el entrypoint
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
 # Copia el archivo de requerimientos al contenedor
 COPY requirements.txt requirements.txt
 # Instala las dependencias especificadas en requirements.txt
@@ -15,10 +16,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia todo el contenido de la carpeta actual al directorio de trabajo del contenedor
 COPY . .
 
-# Expone el puerto 5000 para Flask
+# Copiar el script entrypoint.sh y asignarle permisos de ejecución
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Expone el puerto 5000 para que Flask sea accesible
 EXPOSE 5000
 
-# Comando para correr la aplicación
-# Comando para correr la aplicación Flask
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Configurar el entrypoint para ejecutar migraciones y luego iniciar Flask
+ENTRYPOINT ["/entrypoint.sh"]

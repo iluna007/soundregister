@@ -7,35 +7,14 @@
 │   ├── __init__.py
 │   ├── models.py
 │   ├── __pycache__
-│   │   ├── forms.cpython-311.pyc
-│   │   ├── __init__.cpython-311.pyc
-│   │   ├── models.cpython-311.pyc
-│   │   └── routes.cpython-311.pyc
 │   ├── requirements.txt
 │   ├── routes.py
 │   ├── static
-│   │   └── styles
 │   └── templates
-│       ├── audios.html
-│       ├── index.html
-│       ├── user_audio_records.html
-│       ├── user_files.html
-│       └── users.html
 ├── docker-compose.yml
 ├── env_soundregister
 │   ├── bin
-│   │   ├── activate
-│   │   ├── activate.csh
-│   │   ├── activate.fish
-│   │   ├── Activate.ps1
-│   │   ├── pip
-│   │   ├── pip3
-│   │   ├── pip3.11
-│   │   ├── python -> /home/vant/anaconda3/bin/python
-│   │   ├── python3 -> python
-│   │   └── python3.11 -> python
 │   ├── lib
-│   │   └── python3.11
 │   ├── lib64 -> lib
 │   └── pyvenv.cfg
 ├── file_structure.txt
@@ -43,264 +22,19 @@
 │   ├── Dockerfile_frontend
 │   ├── index.html
 │   ├── node_modules
-│   │   ├── acorn
-│   │   ├── acorn-jsx
-│   │   ├── ajv
-│   │   ├── @ampproject
-│   │   ├── ansi-styles
-│   │   ├── argparse
-│   │   ├── array-buffer-byte-length
-│   │   ├── arraybuffer.prototype.slice
-│   │   ├── array-includes
-│   │   ├── array.prototype.findlast
-│   │   ├── array.prototype.flat
-│   │   ├── array.prototype.flatmap
-│   │   ├── array.prototype.tosorted
-│   │   ├── available-typed-arrays
-│   │   ├── @babel
-│   │   ├── balanced-match
-│   │   ├── bootstrap
-│   │   ├── brace-expansion
-│   │   ├── browserslist
-│   │   ├── call-bind
-│   │   ├── call-bind-apply-helpers
-│   │   ├── call-bound
-│   │   ├── callsites
-│   │   ├── caniuse-lite
-│   │   ├── chalk
-│   │   ├── classnames
-│   │   ├── color-convert
-│   │   ├── color-name
-│   │   ├── concat-map
-│   │   ├── convert-source-map
-│   │   ├── cookie
-│   │   ├── cross-spawn
-│   │   ├── csstype
-│   │   ├── data-view-buffer
-│   │   ├── data-view-byte-length
-│   │   ├── data-view-byte-offset
-│   │   ├── debug
-│   │   ├── deep-is
-│   │   ├── define-data-property
-│   │   ├── define-properties
-│   │   ├── dequal
-│   │   ├── doctrine
-│   │   ├── dom-helpers
-│   │   ├── dunder-proto
-│   │   ├── electron-to-chromium
-│   │   ├── es-abstract
-│   │   ├── @esbuild
-│   │   ├── esbuild
-│   │   ├── escalade
-│   │   ├── escape-string-regexp
-│   │   ├── es-define-property
-│   │   ├── es-errors
-│   │   ├── es-iterator-helpers
-│   │   ├── @eslint
-│   │   ├── eslint
-│   │   ├── @eslint-community
-│   │   ├── eslint-plugin-react
-│   │   ├── eslint-plugin-react-hooks
-│   │   ├── eslint-plugin-react-refresh
-│   │   ├── eslint-scope
-│   │   ├── eslint-visitor-keys
-│   │   ├── es-object-atoms
-│   │   ├── espree
-│   │   ├── esquery
-│   │   ├── esrecurse
-│   │   ├── es-set-tostringtag
-│   │   ├── es-shim-unscopables
-│   │   ├── es-to-primitive
-│   │   ├── estraverse
-│   │   ├── esutils
-│   │   ├── fast-deep-equal
-│   │   ├── fast-json-stable-stringify
-│   │   ├── fast-levenshtein
-│   │   ├── file-entry-cache
-│   │   ├── find-up
-│   │   ├── flat-cache
-│   │   ├── flatted
-│   │   ├── for-each
-│   │   ├── function-bind
-│   │   ├── function.prototype.name
-│   │   ├── functions-have-names
-│   │   ├── gensync
-│   │   ├── get-intrinsic
-│   │   ├── get-proto
-│   │   ├── get-symbol-description
-│   │   ├── globals
-│   │   ├── globalthis
-│   │   ├── glob-parent
-│   │   ├── gopd
-│   │   ├── has-bigints
-│   │   ├── has-flag
-│   │   ├── hasown
-│   │   ├── has-property-descriptors
-│   │   ├── has-proto
-│   │   ├── has-symbols
-│   │   ├── has-tostringtag
-│   │   ├── @humanfs
-│   │   ├── @humanwhocodes
-│   │   ├── ignore
-│   │   ├── import-fresh
-│   │   ├── imurmurhash
-│   │   ├── internal-slot
-│   │   ├── invariant
-│   │   ├── isarray
-│   │   ├── is-array-buffer
-│   │   ├── is-async-function
-│   │   ├── is-bigint
-│   │   ├── is-boolean-object
-│   │   ├── is-callable
-│   │   ├── is-core-module
-│   │   ├── is-data-view
-│   │   ├── is-date-object
-│   │   ├── isexe
-│   │   ├── is-extglob
-│   │   ├── is-finalizationregistry
-│   │   ├── is-generator-function
-│   │   ├── is-glob
-│   │   ├── is-map
-│   │   ├── is-number-object
-│   │   ├── is-regex
-│   │   ├── is-set
-│   │   ├── is-shared-array-buffer
-│   │   ├── is-string
-│   │   ├── is-symbol
-│   │   ├── is-typed-array
-│   │   ├── is-weakmap
-│   │   ├── is-weakref
-│   │   ├── is-weakset
-│   │   ├── iterator.prototype
-│   │   ├── @jridgewell
-│   │   ├── jsesc
-│   │   ├── json5
-│   │   ├── json-buffer
-│   │   ├── json-schema-traverse
-│   │   ├── json-stable-stringify-without-jsonify
-│   │   ├── js-tokens
-│   │   ├── jsx-ast-utils
-│   │   ├── js-yaml
-│   │   ├── keyv
-│   │   ├── levn
-│   │   ├── locate-path
-│   │   ├── lodash.merge
-│   │   ├── loose-envify
-│   │   ├── lru-cache
-│   │   ├── math-intrinsics
-│   │   ├── minimatch
-│   │   ├── ms
-│   │   ├── nanoid
-│   │   ├── natural-compare
-│   │   ├── node-releases
-│   │   ├── object-assign
-│   │   ├── object.assign
-│   │   ├── object.entries
-│   │   ├── object.fromentries
-│   │   ├── object-inspect
-│   │   ├── object-keys
-│   │   ├── object.values
-│   │   ├── optionator
-│   │   ├── own-keys
-│   │   ├── parent-module
-│   │   ├── path-exists
-│   │   ├── path-key
-│   │   ├── path-parse
-│   │   ├── picocolors
-│   │   ├── p-limit
-│   │   ├── p-locate
-│   │   ├── @popperjs
-│   │   ├── possible-typed-array-names
-│   │   ├── postcss
-│   │   ├── prelude-ls
-│   │   ├── prop-types
-│   │   ├── prop-types-extra
-│   │   ├── punycode
-│   │   ├── react
-│   │   ├── @react-aria
-│   │   ├── react-bootstrap
-│   │   ├── react-dom
-│   │   ├── react-is
-│   │   ├── react-lifecycles-compat
-│   │   ├── react-refresh
-│   │   ├── react-router
-│   │   ├── react-router-dom
-│   │   ├── react-transition-group
-│   │   ├── reflect.getprototypeof
-│   │   ├── regenerator-runtime
-│   │   ├── regexp.prototype.flags
-│   │   ├── resolve
-│   │   ├── resolve-from
-│   │   ├── @restart
-│   │   ├── @rollup
-│   │   ├── rollup
-│   │   ├── safe-array-concat
-│   │   ├── safe-push-apply
-│   │   ├── safe-regex-test
-│   │   ├── scheduler
-│   │   ├── semver
-│   │   ├── set-cookie-parser
-│   │   ├── set-function-length
-│   │   ├── set-function-name
-│   │   ├── set-proto
-│   │   ├── shebang-command
-│   │   ├── shebang-regex
-│   │   ├── side-channel
-│   │   ├── side-channel-list
-│   │   ├── side-channel-map
-│   │   ├── side-channel-weakmap
-│   │   ├── source-map-js
-│   │   ├── string.prototype.matchall
-│   │   ├── string.prototype.repeat
-│   │   ├── string.prototype.trim
-│   │   ├── string.prototype.trimend
-│   │   ├── string.prototype.trimstart
-│   │   ├── strip-json-comments
-│   │   ├── supports-color
-│   │   ├── supports-preserve-symlinks-flag
-│   │   ├── @swc
-│   │   ├── tslib
-│   │   ├── turbo-stream
-│   │   ├── type-check
-│   │   ├── typed-array-buffer
-│   │   ├── typed-array-byte-length
-│   │   ├── typed-array-byte-offset
-│   │   ├── typed-array-length
-│   │   ├── @types
-│   │   ├── unbox-primitive
-│   │   ├── uncontrollable
-│   │   ├── update-browserslist-db
-│   │   ├── uri-js
-│   │   ├── vite
-│   │   ├── @vitejs
-│   │   ├── warning
-│   │   ├── which
-│   │   ├── which-boxed-primitive
-│   │   ├── which-builtin-type
-│   │   ├── which-collection
-│   │   ├── which-typed-array
-│   │   ├── word-wrap
-│   │   ├── yallist
-│   │   └── yocto-queue
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── public
-│   │   └── vite.svg
 │   ├── src
-│   │   ├── actions
-│   │   ├── AppContext.jsx
-│   │   ├── App.css
-│   │   ├── App.jsx
-│   │   ├── assets
-│   │   ├── components
-│   │   ├── dispatchers
-│   │   ├── main.css
-│   │   ├── main.jsx
-│   │   ├── pages
-│   │   ├── scss
-│   │   └── store
 │   └── vite.config.js
 ├── load_test_data.sh
+├── migrations
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── __pycache__
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
 ├── package.json
 ├── package-lock.json
 ├── __pycache__
@@ -309,4 +43,4 @@
 ├── requirements.txt
 └── run.py
 
-261 directories, 48 files
+16 directories, 27 files

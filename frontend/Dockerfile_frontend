@@ -1,21 +1,30 @@
 # Usar una imagen base oficial de Node
 FROM node:20-alpine
 
-# Crear directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de dependencias
-COPY package*.json ./
+# Copiar los archivos de dependencias del frontend
+COPY frontend/package*.json ./
 
 # Instalar dependencias
 RUN npm install
 
-# Copiar el resto del código
-COPY . .
+# Copiar el resto del código fuente del frontend
+COPY frontend/ .
+
+# Copiar el archivo global .env desde la raíz (asegúrate de que esté en el build context)
+COPY .env /global.env
+
+# Copiar el script de generación desde la raíz y asignarle permisos
+COPY generate_frontend_env.sh /generate_frontend_env.sh
+RUN chmod +x /generate_frontend_env.sh && /generate_frontend_env.sh
+
+# Esto generará el archivo /app/.env en el contenedor, con solo las variables que comienzan con VITE_
+# (Nuestro script debe estar adaptado para que use /global.env y genere /app/.env)
 
 # Exponer el puerto de desarrollo de Vite
 EXPOSE 5173
 
-# Comando por defecto (ya no es necesario si lo defines en docker-compose, 
-# pero puede ser útil tenerlo aquí)
+# Comando por defecto para iniciar la aplicación
 CMD ["npm", "run", "dev"]
